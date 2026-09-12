@@ -6,6 +6,7 @@ import { BillData, amountInWords } from '../types/bill';
 interface ReceiptPreviewProps {
   bill: BillData;
   className?: string;
+  isExporting?: boolean;
 }
 
 export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
@@ -51,6 +52,12 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
 
     const currency = bill.currencySymbol || '₹';
 
+    // CSS Zig-Zag mask polygon points for guaranteed internal jagged edges without clipping
+    const jaggedClipPath = `polygon(
+      0% 8px, 2.5% 0px, 5% 8px, 7.5% 0px, 10% 8px, 12.5% 0px, 15% 8px, 17.5% 0px, 20% 8px, 22.5% 0px, 25% 8px, 27.5% 0px, 30% 8px, 32.5% 0px, 35% 8px, 37.5% 0px, 40% 8px, 42.5% 0px, 45% 8px, 47.5% 0px, 50% 8px, 52.5% 0px, 55% 8px, 57.5% 0px, 60% 8px, 62.5% 0px, 65% 8px, 67.5% 0px, 70% 8px, 72.5% 0px, 75% 8px, 77.5% 0px, 80% 8px, 82.5% 0px, 85% 8px, 87.5% 0px, 90% 8px, 92.5% 0px, 95% 8px, 97.5% 0px, 100% 8px,
+      100% calc(100% - 8px), 97.5% 100%, 95% calc(100% - 8px), 92.5% 100%, 90% calc(100% - 8px), 87.5% 100%, 85% calc(100% - 8px), 82.5% 100%, 80% calc(100% - 8px), 77.5% 100%, 75% calc(100% - 8px), 72.5% 100%, 70% calc(100% - 8px), 67.5% 100%, 65% calc(100% - 8px), 62.5% 100%, 60% calc(100% - 8px), 57.5% 100%, 55% calc(100% - 8px), 52.5% 100%, 50% calc(100% - 8px), 47.5% 100%, 45% calc(100% - 8px), 42.5% 100%, 40% calc(100% - 8px), 37.5% 100%, 35% calc(100% - 8px), 32.5% 100%, 30% calc(100% - 8px), 27.5% 100%, 25% calc(100% - 8px), 22.5% 100%, 20% calc(100% - 8px), 17.5% 100%, 15% calc(100% - 8px), 12.5% 100%, 10% calc(100% - 8px), 7.5% 100%, 5% calc(100% - 8px), 2.5% 100%, 0% calc(100% - 8px)
+    )`;
+
     // --------------------------------------------------------------------------
     // STYLE 1: MINIMAL MODERN (Clean & Simple)
     // --------------------------------------------------------------------------
@@ -58,16 +65,13 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
       return (
         <div
           ref={ref}
-          className={`relative w-full max-w-[460px] mx-auto bg-[#fafafa] text-[#171717] shadow-2xl p-6 sm:p-8 font-mono select-none border border-stone-200 transition-all ${className}`}
-          style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)' }}
+          id="receipt-print-node"
+          className={`relative w-full max-w-[480px] mx-auto bg-[#fafafa] text-[#171717] shadow-2xl p-7 sm:p-8 font-mono select-none border border-stone-200 transition-all ${className}`}
+          style={{
+            clipPath: jaggedClipPath,
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+          }}
         >
-          {/* Top Jagged Cutout */}
-          <div className="absolute -top-3 left-0 right-0 h-3 overflow-hidden pointer-events-none">
-            <svg className="w-full h-full" viewBox="0 0 400 12" preserveAspectRatio="none">
-              <polygon points="0,12 10,0 20,12 30,0 40,12 50,0 60,12 70,0 80,12 90,0 100,12 110,0 120,12 130,0 140,12 150,0 160,12 170,0 180,12 190,0 200,12 210,0 220,12 230,0 240,12 250,0 260,12 270,0 280,12 290,0 300,12 310,0 320,12 330,0 340,12 350,0 360,12 370,0 380,12 390,0 400,12" fill="#fafafa" />
-            </svg>
-          </div>
-
           {/* Watermark Poster */}
           {bill.bgImage && (
             <div className="absolute inset-0 pointer-events-none bg-center bg-cover bg-no-repeat opacity-[0.10] mix-blend-multiply" style={{ backgroundImage: `url(${bill.bgImage})` }} />
@@ -99,45 +103,45 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           </div>
 
           {/* Metadata */}
-          <div className="relative z-10 py-3 text-[11px] space-y-0.5 border-b border-stone-400">
-            <div className="grid grid-cols-12 gap-1">
-              <span className="col-span-4 text-stone-500 uppercase font-semibold">COMPOSER</span>
-              <span className="col-span-8 font-bold text-stone-900">: {bill.musicDirector}</span>
+          <div className="relative z-10 py-3 text-[11px] space-y-1 border-b border-stone-400">
+            <div className="flex justify-between">
+              <span className="text-stone-500 uppercase font-semibold">COMPOSER</span>
+              <span className="font-bold text-stone-900">: {bill.musicDirector}</span>
             </div>
-            <div className="grid grid-cols-12 gap-1">
-              <span className="col-span-4 text-stone-500 uppercase font-semibold">STUDIO</span>
-              <span className="col-span-8 font-bold text-stone-900 truncate">: {bill.studio}</span>
+            <div className="flex justify-between">
+              <span className="text-stone-500 uppercase font-semibold">STUDIO</span>
+              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: {bill.studio}</span>
             </div>
-            <div className="grid grid-cols-12 gap-1">
-              <span className="col-span-4 text-stone-500 uppercase font-semibold">LABEL</span>
-              <span className="col-span-8 font-bold text-stone-900 truncate">: {bill.label}</span>
+            <div className="flex justify-between">
+              <span className="text-stone-500 uppercase font-semibold">LABEL</span>
+              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: {bill.label}</span>
             </div>
-            <div className="grid grid-cols-12 gap-1">
-              <span className="col-span-4 text-stone-500 uppercase font-semibold">RELEASED</span>
-              <span className="col-span-8 font-bold text-stone-900">: {bill.releaseDate}</span>
+            <div className="flex justify-between">
+              <span className="text-stone-500 uppercase font-semibold">RELEASED</span>
+              <span className="font-bold text-stone-900">: {bill.releaseDate}</span>
             </div>
-            <div className="grid grid-cols-12 gap-1">
-              <span className="col-span-4 text-stone-500 uppercase font-semibold">CUISINE</span>
-              <span className="col-span-8 font-bold text-stone-900">: Feel Good • Romantic • Youth Special</span>
+            <div className="flex justify-between">
+              <span className="text-stone-500 uppercase font-semibold">CUISINE</span>
+              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: Feel Good • Romantic • Youth Special</span>
             </div>
           </div>
 
           {/* Item Table */}
           <div className="relative z-10 py-3 text-xs">
-            <div className="grid grid-cols-12 gap-1 pb-1 font-bold border-b border-stone-900 uppercase text-[11px]">
-              <div className="col-span-1">#</div>
-              <div className="col-span-6">SONG NAME</div>
-              <div className="col-span-2 text-center">DUR</div>
-              <div className="col-span-3 text-right">AMOUNT ({currency})</div>
+            <div className="flex justify-between pb-1 font-bold border-b border-stone-900 uppercase text-[11px]">
+              <div className="w-8">#</div>
+              <div className="flex-1 px-1">SONG NAME</div>
+              <div className="w-16 text-center">DUR</div>
+              <div className="w-20 text-right">AMOUNT ({currency})</div>
             </div>
 
             <div className="space-y-1.5 pt-2">
               {bill.tracks.map((t, idx) => (
-                <div key={t.id || idx} className="grid grid-cols-12 gap-1 text-[11px] leading-tight">
-                  <div className="col-span-1 opacity-70 font-semibold">{idx + 1}</div>
-                  <div className="col-span-6 font-bold uppercase truncate">{t.name}</div>
-                  <div className="col-span-2 text-center font-semibold">{t.duration}</div>
-                  <div className="col-span-3 text-right font-bold">{t.price || t.duration.replace(':', '.')}</div>
+                <div key={t.id || idx} className="flex justify-between items-center text-[11px] leading-tight">
+                  <div className="w-8 opacity-70 font-semibold">{idx + 1}</div>
+                  <div className="flex-1 px-1 font-bold uppercase truncate">{t.name}</div>
+                  <div className="w-16 text-center font-semibold text-stone-700">{t.duration}</div>
+                  <div className="w-20 text-right font-bold">{t.price || t.duration.replace(':', '.')}</div>
                 </div>
               ))}
             </div>
@@ -189,13 +193,6 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               </div>
             </div>
           </div>
-
-          {/* Bottom Jagged Cutout */}
-          <div className="absolute -bottom-3 left-0 right-0 h-3 overflow-hidden pointer-events-none transform rotate-180">
-            <svg className="w-full h-full" viewBox="0 0 400 12" preserveAspectRatio="none">
-              <polygon points="0,12 10,0 20,12 30,0 40,12 50,0 60,12 70,0 80,12 90,0 100,12 110,0 120,12 130,0 140,12 150,0 160,12 170,0 180,12 190,0 200,12 210,0 220,12 230,0 240,12 250,0 260,12 270,0 280,12 290,0 300,12 310,0 320,12 330,0 340,12 350,0 360,12 370,0 380,12 390,0 400,12" fill="#fafafa" />
-            </svg>
-          </div>
         </div>
       );
     }
@@ -207,16 +204,13 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
       return (
         <div
           ref={ref}
-          className={`relative w-full max-w-[460px] mx-auto bg-[#eef1f4] text-[#1a202c] shadow-2xl p-6 sm:p-7 font-mono select-none border border-stone-300 transition-all ${className}`}
-          style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)' }}
+          id="receipt-print-node"
+          className={`relative w-full max-w-[480px] mx-auto bg-[#eef1f4] text-[#1a202c] shadow-2xl p-7 sm:p-8 font-mono select-none border border-stone-300 transition-all ${className}`}
+          style={{
+            clipPath: jaggedClipPath,
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+          }}
         >
-          {/* Top Jagged Cutout */}
-          <div className="absolute -top-3 left-0 right-0 h-3 overflow-hidden pointer-events-none">
-            <svg className="w-full h-full" viewBox="0 0 400 12" preserveAspectRatio="none">
-              <polygon points="0,12 10,0 20,12 30,0 40,12 50,0 60,12 70,0 80,12 90,0 100,12 110,0 120,12 130,0 140,12 150,0 160,12 170,0 180,12 190,0 200,12 210,0 220,12 230,0 240,12 250,0 260,12 270,0 280,12 290,0 300,12 310,0 320,12 330,0 340,12 350,0 360,12 370,0 380,12 390,0 400,12" fill="#eef1f4" />
-            </svg>
-          </div>
-
           {/* Watermark Poster */}
           {bill.bgImage && (
             <div className="absolute inset-0 pointer-events-none bg-center bg-cover bg-no-repeat opacity-[0.10] mix-blend-multiply" style={{ backgroundImage: `url(${bill.bgImage})` }} />
@@ -269,20 +263,20 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
 
           {/* Items Table */}
           <div className="relative z-10 py-2 text-xs">
-            <div className="grid grid-cols-12 gap-1 pb-1 font-bold border-b border-stone-800 text-[11px]">
-              <div className="col-span-1">QTY</div>
-              <div className="col-span-6">ITEM</div>
-              <div className="col-span-2 text-center">TIME</div>
-              <div className="col-span-3 text-right">AMT({currency})</div>
+            <div className="flex justify-between pb-1 font-bold border-b border-stone-800 text-[11px]">
+              <div className="w-8">QTY</div>
+              <div className="flex-1 px-1">ITEM</div>
+              <div className="w-16 text-center">TIME</div>
+              <div className="w-20 text-right">AMT({currency})</div>
             </div>
 
             <div className="space-y-1.5 pt-1.5 text-[11px]">
               {bill.tracks.map((t, idx) => (
-                <div key={t.id || idx} className="grid grid-cols-12 gap-1">
-                  <div className="col-span-1">1</div>
-                  <div className="col-span-6 font-bold uppercase truncate">{t.name}</div>
-                  <div className="col-span-2 text-center">{t.duration}</div>
-                  <div className="col-span-3 text-right font-bold">{t.price || t.duration.replace(':', '.')}</div>
+                <div key={t.id || idx} className="flex justify-between items-center">
+                  <div className="w-8 text-stone-600 font-semibold">1</div>
+                  <div className="flex-1 px-1 font-bold uppercase truncate">{t.name}</div>
+                  <div className="w-16 text-center text-stone-700">{t.duration}</div>
+                  <div className="w-20 text-right font-bold">{t.price || t.duration.replace(':', '.')}</div>
                 </div>
               ))}
             </div>
@@ -321,13 +315,6 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               Visit Again for More Melodies!
             </p>
           </div>
-
-          {/* Bottom Jagged Cutout */}
-          <div className="absolute -bottom-3 left-0 right-0 h-3 overflow-hidden pointer-events-none transform rotate-180">
-            <svg className="w-full h-full" viewBox="0 0 400 12" preserveAspectRatio="none">
-              <polygon points="0,12 10,0 20,12 30,0 40,12 50,0 60,12 70,0 80,12 90,0 100,12 110,0 120,12 130,0 140,12 150,0 160,12 170,0 180,12 190,0 200,12 210,0 220,12 230,0 240,12 250,0 260,12 270,0 280,12 290,0 300,12 310,0 320,12 330,0 340,12 350,0 360,12 370,0 380,12 390,0 400,12" fill="#eef1f4" />
-            </svg>
-          </div>
         </div>
       );
     }
@@ -339,20 +326,15 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
       return (
         <div
           ref={ref}
-          className={`relative w-full max-w-[460px] mx-auto bg-[#fef3c7] text-[#14532d] shadow-2xl p-6 sm:p-7 font-mono select-none border-2 border-[#b91c1c]/40 transition-all ${className}`}
+          id="receipt-print-node"
+          className={`relative w-full max-w-[480px] mx-auto bg-[#fef3c7] text-[#14532d] shadow-2xl p-7 sm:p-8 font-mono select-none border-2 border-[#b91c1c]/40 transition-all ${className}`}
           style={{
+            clipPath: jaggedClipPath,
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45)',
             backgroundImage: 'radial-gradient(#d97706 0.5px, transparent 0.5px)',
             backgroundSize: '12px 12px'
           }}
         >
-          {/* Top Jagged Cutout */}
-          <div className="absolute -top-3 left-0 right-0 h-3 overflow-hidden pointer-events-none">
-            <svg className="w-full h-full" viewBox="0 0 400 12" preserveAspectRatio="none">
-              <polygon points="0,12 10,0 20,12 30,0 40,12 50,0 60,12 70,0 80,12 90,0 100,12 110,0 120,12 130,0 140,12 150,0 160,12 170,0 180,12 190,0 200,12 210,0 220,12 230,0 240,12 250,0 260,12 270,0 280,12 290,0 300,12 310,0 320,12 330,0 340,12 350,0 360,12 370,0 380,12 390,0 400,12" fill="#fef3c7" />
-            </svg>
-          </div>
-
           {/* Watermark Poster */}
           {bill.bgImage && (
             <div className="absolute inset-0 pointer-events-none bg-center bg-cover bg-no-repeat opacity-[0.12] mix-blend-multiply" style={{ backgroundImage: `url(${bill.bgImage})` }} />
@@ -402,20 +384,20 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
 
           {/* Table */}
           <div className="relative z-10 py-2 text-xs">
-            <div className="grid grid-cols-12 gap-1 pb-1 font-bold text-[#b91c1c] border-b border-[#b91c1c] text-[11px]">
-              <div className="col-span-1">#</div>
-              <div className="col-span-6">Song Name</div>
-              <div className="col-span-2 text-center">Time</div>
-              <div className="col-span-3 text-right">Amt({currency})</div>
+            <div className="flex justify-between pb-1 font-bold text-[#b91c1c] border-b border-[#b91c1c] text-[11px]">
+              <div className="w-8">#</div>
+              <div className="flex-1 px-1">Song Name</div>
+              <div className="w-16 text-center">Time</div>
+              <div className="w-20 text-right">Amt({currency})</div>
             </div>
 
             <div className="space-y-1.5 pt-1.5 text-[11px] font-semibold">
               {bill.tracks.map((t, idx) => (
-                <div key={t.id || idx} className="grid grid-cols-12 gap-1">
-                  <div className="col-span-1 text-[#b91c1c]">{idx + 1}</div>
-                  <div className="col-span-6 text-[#15803d] font-bold uppercase truncate">{t.name}</div>
-                  <div className="col-span-2 text-center text-[#b91c1c]">{t.duration}</div>
-                  <div className="col-span-3 text-right text-[#15803d] font-bold">{t.price || t.duration.replace(':', '.')}</div>
+                <div key={t.id || idx} className="flex justify-between items-center">
+                  <div className="w-8 text-[#b91c1c]">{idx + 1}</div>
+                  <div className="flex-1 px-1 text-[#15803d] font-bold uppercase truncate">{t.name}</div>
+                  <div className="w-16 text-center text-[#b91c1c]">{t.duration}</div>
+                  <div className="w-20 text-right text-[#15803d] font-bold">{t.price || t.duration.replace(':', '.')}</div>
                 </div>
               ))}
             </div>
@@ -458,13 +440,6 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               <div className="text-[11px] font-serif italic text-[#b91c1c]">Keep Listening! ❤️</div>
             </div>
           </div>
-
-          {/* Bottom Jagged Cutout */}
-          <div className="absolute -bottom-3 left-0 right-0 h-3 overflow-hidden pointer-events-none transform rotate-180">
-            <svg className="w-full h-full" viewBox="0 0 400 12" preserveAspectRatio="none">
-              <polygon points="0,12 10,0 20,12 30,0 40,12 50,0 60,12 70,0 80,12 90,0 100,12 110,0 120,12 130,0 140,12 150,0 160,12 170,0 180,12 190,0 200,12 210,0 220,12 230,0 240,12 250,0 260,12 270,0 280,12 290,0 300,12 310,0 320,12 330,0 340,12 350,0 360,12 370,0 380,12 390,0 400,12" fill="#fef3c7" />
-            </svg>
-          </div>
         </div>
       );
     }
@@ -475,16 +450,13 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
     return (
       <div
         ref={ref}
-        className={`relative w-full max-w-[460px] mx-auto bg-[#141416] text-[#e2e8f0] shadow-2xl p-6 sm:p-8 font-mono select-none border border-amber-500/30 transition-all ${className}`}
-        style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 158, 11, 0.1)' }}
+        id="receipt-print-node"
+        className={`relative w-full max-w-[480px] mx-auto bg-[#141416] text-[#e2e8f0] shadow-2xl p-7 sm:p-8 font-mono select-none border border-amber-500/30 transition-all ${className}`}
+        style={{
+          clipPath: jaggedClipPath,
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 158, 11, 0.1)',
+        }}
       >
-        {/* Top Jagged Cutout */}
-        <div className="absolute -top-3 left-0 right-0 h-3 overflow-hidden pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 400 12" preserveAspectRatio="none">
-            <polygon points="0,12 10,0 20,12 30,0 40,12 50,0 60,12 70,0 80,12 90,0 100,12 110,0 120,12 130,0 140,12 150,0 160,12 170,0 180,12 190,0 200,12 210,0 220,12 230,0 240,12 250,0 260,12 270,0 280,12 290,0 300,12 310,0 320,12 330,0 340,12 350,0 360,12 370,0 380,12 390,0 400,12" fill="#141416" />
-          </svg>
-        </div>
-
         {/* Watermark Poster */}
         {bill.bgImage && (
           <div className="absolute inset-0 pointer-events-none bg-center bg-cover bg-no-repeat opacity-[0.14] mix-blend-screen" style={{ backgroundImage: `url(${bill.bgImage})` }} />
@@ -514,41 +486,41 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
         </div>
 
         {/* Metadata */}
-        <div className="relative z-10 py-3 text-[11px] space-y-0.5 border-b border-amber-500/20 text-stone-300">
-          <div className="grid grid-cols-12 gap-1">
-            <span className="col-span-4 text-amber-400 uppercase font-semibold">COMPOSER</span>
-            <span className="col-span-8 font-bold text-stone-100">: {bill.musicDirector}</span>
+        <div className="relative z-10 py-3 text-[11px] space-y-1 border-b border-amber-500/20 text-stone-300">
+          <div className="flex justify-between">
+            <span className="text-amber-400 uppercase font-semibold">COMPOSER</span>
+            <span className="font-bold text-stone-100">: {bill.musicDirector}</span>
           </div>
-          <div className="grid grid-cols-12 gap-1">
-            <span className="col-span-4 text-amber-400 uppercase font-semibold">STUDIO</span>
-            <span className="col-span-8 font-bold text-stone-100 truncate">: {bill.studio}</span>
+          <div className="flex justify-between">
+            <span className="text-amber-400 uppercase font-semibold">STUDIO</span>
+            <span className="font-bold text-stone-100 truncate max-w-[270px] text-right">: {bill.studio}</span>
           </div>
-          <div className="grid grid-cols-12 gap-1">
-            <span className="col-span-4 text-amber-400 uppercase font-semibold">LABEL</span>
-            <span className="col-span-8 font-bold text-stone-100 truncate">: {bill.label}</span>
+          <div className="flex justify-between">
+            <span className="text-amber-400 uppercase font-semibold">LABEL</span>
+            <span className="font-bold text-stone-100 truncate max-w-[270px] text-right">: {bill.label}</span>
           </div>
-          <div className="grid grid-cols-12 gap-1">
-            <span className="col-span-4 text-amber-400 uppercase font-semibold">RELEASED</span>
-            <span className="col-span-8 font-bold text-stone-100">: {bill.releaseDate}</span>
+          <div className="flex justify-between">
+            <span className="text-amber-400 uppercase font-semibold">RELEASED</span>
+            <span className="font-bold text-stone-100">: {bill.releaseDate}</span>
           </div>
         </div>
 
         {/* Items Table */}
         <div className="relative z-10 py-3 text-xs">
-          <div className="grid grid-cols-12 gap-1 pb-1 font-bold border-b border-amber-500/40 uppercase text-[10px] sm:text-[11px] text-amber-300">
-            <div className="col-span-1">#</div>
-            <div className="col-span-6">SONG NAME</div>
-            <div className="col-span-2 text-center">DURATION</div>
-            <div className="col-span-3 text-right">AMOUNT ({currency})</div>
+          <div className="flex justify-between pb-1 font-bold border-b border-amber-500/40 uppercase text-[10px] sm:text-[11px] text-amber-300">
+            <div className="w-8">#</div>
+            <div className="flex-1 px-1">SONG NAME</div>
+            <div className="w-16 text-center">DURATION</div>
+            <div className="w-20 text-right">AMOUNT ({currency})</div>
           </div>
 
           <div className="space-y-1.5 pt-2">
             {bill.tracks.map((t, idx) => (
-              <div key={t.id || idx} className="grid grid-cols-12 gap-1 text-[11px] leading-tight">
-                <div className="col-span-1 text-amber-400 font-semibold">{idx + 1}</div>
-                <div className="col-span-6 font-bold uppercase truncate text-stone-100">{t.name}</div>
-                <div className="col-span-2 text-center text-stone-300 font-semibold">{t.duration}</div>
-                <div className="col-span-3 text-right font-bold text-amber-200">{t.price || t.duration.replace(':', '.')}</div>
+              <div key={t.id || idx} className="flex justify-between items-center text-[11px] leading-tight">
+                <div className="w-8 text-amber-400 font-semibold">{idx + 1}</div>
+                <div className="flex-1 px-1 font-bold uppercase truncate text-stone-100">{t.name}</div>
+                <div className="w-16 text-center text-stone-300 font-semibold">{t.duration}</div>
+                <div className="w-20 text-right font-bold text-amber-200">{t.price || t.duration.replace(':', '.')}</div>
               </div>
             ))}
           </div>
@@ -596,13 +568,6 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           <p className="text-[9px] tracking-widest uppercase font-bold text-amber-500/80">
             THANK YOU FOR BEING A PART OF THE MUSIC
           </p>
-        </div>
-
-        {/* Bottom Jagged Cutout */}
-        <div className="absolute -bottom-3 left-0 right-0 h-3 overflow-hidden pointer-events-none transform rotate-180">
-          <svg className="w-full h-full" viewBox="0 0 400 12" preserveAspectRatio="none">
-            <polygon points="0,12 10,0 20,12 30,0 40,12 50,0 60,12 70,0 80,12 90,0 100,12 110,0 120,12 130,0 140,12 150,0 160,12 170,0 180,12 190,0 200,12 210,0 220,12 230,0 240,12 250,0 260,12 270,0 280,12 290,0 300,12 310,0 320,12 330,0 340,12 350,0 360,12 370,0 380,12 390,0 400,12" fill="#141416" />
-          </svg>
         </div>
       </div>
     );
