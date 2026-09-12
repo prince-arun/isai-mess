@@ -64,12 +64,24 @@ export default function HomePage() {
     }));
   };
 
+  // Handle Spotify Auto-Fill
+  const handleAutoFillBill = (spotifyBillData: Partial<BillData>) => {
+    setActivePresetId(''); // Deselect preset
+    setBill((prev) => ({
+      ...prev,
+      ...spotifyBillData,
+    }));
+    // Switch to preview on mobile so user sees the generated bill immediately
+    setMobileView('preview');
+  };
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 font-sans flex flex-col selection:bg-amber-500 selection:text-stone-950">
       
-      {/* Header with Preset Pills */}
+      {/* Header with Preset Pills and Spotify Search */}
       <KitchenHeader
         onSelectPreset={handleSelectPreset}
+        onAutoFillBill={handleAutoFillBill}
         activePresetId={activePresetId}
       />
 
@@ -119,7 +131,11 @@ export default function HomePage() {
           
           {/* LEFT COLUMN: FORM CONTROLS */}
           <div className={`lg:col-span-6 space-y-6 ${mobileView === 'form' ? 'block' : 'hidden lg:block'}`}>
-            <BillForm bill={bill} onChange={setBill} />
+            <BillForm
+              bill={bill}
+              onChange={setBill}
+              onAutoFillBill={handleAutoFillBill}
+            />
           </div>
 
           {/* RIGHT COLUMN: LIVE THERMAL BILL PREVIEW & EXPORT */}
@@ -134,8 +150,8 @@ export default function HomePage() {
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span>EPSON ISAI-900 THERMAL PRINTER</span>
                 </div>
-                <div className="text-[11px] font-mono text-amber-400/90 font-bold uppercase">
-                  READY • 203 DPI
+                <div className="text-[11px] font-mono text-[#1DB954] font-bold uppercase flex items-center gap-1">
+                  <span>SPOTIFY READY</span> • <span>203 DPI</span>
                 </div>
               </div>
 
@@ -176,7 +192,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Disc3 className="w-4 h-4 text-amber-500 animate-[spin_10s_linear_infinite]" />
-            <span>இசை மெஸ் • Crafted with Next.js for Tamil Music Lovers</span>
+            <span>இசை மெஸ் • Crafted with Next.js & Spotify Web API for Tamil Music Lovers</span>
           </div>
           <div>
             Built with 🔥 for high-resolution thermal receipt creation & export.

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { BillData, ThemeStyle, TrackItem } from '../types/bill';
+import { SpotifySearch } from './SpotifySearch';
 import {
   Utensils,
   Music,
@@ -19,9 +20,10 @@ import {
 interface BillFormProps {
   bill: BillData;
   onChange: (updatedBill: BillData) => void;
+  onAutoFillBill: (spotifyBillData: Partial<BillData>) => void;
 }
 
-export const BillForm: React.FC<BillFormProps> = ({ bill, onChange }) => {
+export const BillForm: React.FC<BillFormProps> = ({ bill, onChange, onAutoFillBill }) => {
   const [activeTab, setActiveTab] = useState<'dish' | 'tracks' | 'style'>('dish');
 
   // Input helper
@@ -66,10 +68,26 @@ export const BillForm: React.FC<BillFormProps> = ({ bill, onChange }) => {
   };
 
   return (
-    <div className="bg-stone-900/90 rounded-2xl border border-stone-800 p-4 sm:p-6 shadow-xl backdrop-blur-md text-stone-200">
+    <div className="bg-stone-900/90 rounded-2xl border border-stone-800 p-4 sm:p-6 shadow-xl backdrop-blur-md text-stone-200 space-y-6">
       
+      {/* SPOTIFY SEARCH BOX AT TOP OF FORM */}
+      <div className="bg-stone-950/90 border border-[#1DB954]/40 rounded-xl p-3.5 space-y-2 shadow-lg">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-[#1DB954] uppercase tracking-wider flex items-center gap-1.5">
+            <svg className="w-4 h-4 fill-current text-[#1DB954]" viewBox="0 0 24 24">
+              <path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm5.521 17.341c-.217.357-.68.471-1.037.253-2.839-1.735-6.413-2.128-10.627-1.165-.403.093-.811-.161-.904-.564-.092-.403.161-.811.564-.904 4.619-1.056 8.563-.612 11.751 1.343.357.217.47.68.253 1.037zm1.475-3.275c-.273.444-.853.585-1.296.312-3.249-1.996-8.204-2.577-12.047-1.411-.5.152-1.026-.134-1.178-.633-.152-.5.134-1.026.633-1.178 4.394-1.334 9.855-.694 13.576 1.602.443.273.584.853.312 1.296zm.126-3.414C15.228 8.441 8.8 8.235 5.121 9.35c-.615.187-1.263-.166-1.45-.781-.188-.614.167-1.263.781-1.45 4.228-1.284 11.316-1.047 15.867 1.655.553.328.736 1.044.408 1.597-.328.552-1.044.736-1.597.408z"/>
+            </svg>
+            <span>Search Spotify Album & Auto-Fill</span>
+          </label>
+          <span className="text-[10px] text-stone-400 bg-[#1DB954]/10 text-[#1DB954] px-2 py-0.5 rounded font-mono border border-[#1DB954]/30">
+            Official Spotify API Connected
+          </span>
+        </div>
+        <SpotifySearch onAutoFillBill={onAutoFillBill} />
+      </div>
+
       {/* Navigation Tabs */}
-      <div className="grid grid-cols-3 gap-2 p-1 bg-stone-950 rounded-xl border border-stone-800/80 mb-6">
+      <div className="grid grid-cols-3 gap-2 p-1 bg-stone-950 rounded-xl border border-stone-800/80">
         <button
           onClick={() => setActiveTab('dish')}
           className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-semibold transition-all ${

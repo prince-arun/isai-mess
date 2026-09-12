@@ -3,21 +3,27 @@
 import React from 'react';
 import { ChefHat, Music, Flame, Sparkles, Receipt, Disc3 } from 'lucide-react';
 import { PRESETS } from '../data/presets';
-import { Preset } from '../types/bill';
+import { BillData, Preset } from '../types/bill';
+import { SpotifySearch } from './SpotifySearch';
 
 interface KitchenHeaderProps {
   onSelectPreset: (preset: Preset) => void;
+  onAutoFillBill: (spotifyBillData: Partial<BillData>) => void;
   activePresetId?: string;
 }
 
-export const KitchenHeader: React.FC<KitchenHeaderProps> = ({ onSelectPreset, activePresetId }) => {
+export const KitchenHeader: React.FC<KitchenHeaderProps> = ({
+  onSelectPreset,
+  onAutoFillBill,
+  activePresetId,
+}) => {
   return (
     <header className="relative bg-stone-900 border-b border-amber-900/40 text-amber-50 shadow-2xl overflow-hidden">
       {/* Subtle top ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-gradient-to-b from-amber-500/10 via-amber-600/5 to-transparent blur-xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
           
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-3 group cursor-pointer">
@@ -51,14 +57,9 @@ export const KitchenHeader: React.FC<KitchenHeaderProps> = ({ onSelectPreset, ac
             </div>
           </div>
 
-          {/* Quick Stats / Info badge */}
-          <div className="flex items-center gap-2 text-xs text-stone-400 bg-stone-950/80 px-3.5 py-2 rounded-xl border border-stone-800">
-            <Receipt className="w-4 h-4 text-amber-400" />
-            <span>Thermal Bill Printer Ready</span>
-            <span className="text-stone-600">|</span>
-            <span className="text-emerald-400 font-medium flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> 4K PNG Export
-            </span>
+          {/* Spotify Search Bar in Header */}
+          <div className="w-full lg:w-96">
+            <SpotifySearch onAutoFillBill={onAutoFillBill} />
           </div>
 
         </div>
