@@ -1,9 +1,8 @@
 export type ThemeStyle =
-  | 'classic-hotel'
-  | 'madurai-mess'
+  | 'minimal-modern'
+  | 'authentic-thermal'
   | 'tea-kadai'
-  | 'five-star'
-  | 'night-biryani';
+  | 'premium-cinematic';
 
 export interface TrackItem {
   id: string;
@@ -54,4 +53,32 @@ export interface Preset {
   bgImage: string;
   tracks: TrackItem[];
   posterOpacity?: number;
+}
+
+// Convert amount to words for authentic thermal bills
+export function amountInWords(amountStr: string): string {
+  const num = parseFloat(amountStr);
+  if (isNaN(num)) return '';
+
+  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  const rupees = Math.floor(num);
+  const paise = Math.round((num - rupees) * 100);
+
+  function convertTwoDigits(n: number): string {
+    if (n < 20) return ones[n];
+    return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
+  }
+
+  function convertNumber(n: number): string {
+    if (n === 0) return 'Zero';
+    if (n < 100) return convertTwoDigits(n);
+    if (n < 1000) return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertTwoDigits(n % 100) : '');
+    return n.toString();
+  }
+
+  const rupeeWords = convertNumber(rupees) + ' Rupees';
+  const paiseWords = paise > 0 ? ' and ' + convertTwoDigits(paise) + ' Paise' : '';
+  return `(${rupeeWords}${paiseWords} Only)`;
 }

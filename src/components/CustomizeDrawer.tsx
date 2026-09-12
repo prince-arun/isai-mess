@@ -7,13 +7,9 @@ import {
   Settings2,
   ChevronDown,
   ChevronUp,
-  Palette,
   Image as ImageIcon,
-  Utensils,
-  Music,
   Plus,
   Trash2,
-  Sparkles,
 } from 'lucide-react';
 
 interface CustomizeDrawerProps {
@@ -66,16 +62,15 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
     }
   };
 
-  const stylesList: { id: ThemeStyle; label: string; desc: string }[] = [
-    { id: 'classic-hotel', label: '🍽️ Classic Hotel', desc: 'Traditional South Indian aged thermal' },
-    { id: 'madurai-mess', label: '🥘 Madurai Mess', desc: 'Rustic street mess thermal ink' },
-    { id: 'tea-kadai', label: '☕ Tea Kadai', desc: '1990s yellow tea-shop receipt' },
-    { id: 'five-star', label: '⭐ 5-Star Hotel', desc: 'Overly serious & clean white' },
-    { id: 'night-biryani', label: '🛵 Night Biryani', desc: 'Dark street food style' },
+  const stylesList: { id: ThemeStyle; label: string; desc: string; icon: string }[] = [
+    { id: 'minimal-modern', label: '1. Minimal Modern', desc: 'Clean, stark white with Spotify soundwave', icon: '⚪' },
+    { id: 'authentic-thermal', label: '2. Authentic Hotel Thermal', desc: 'Realistic grey thermal roll with mess oval badge', icon: '🧾' },
+    { id: 'tea-kadai', label: '3. 90s Tea-Kadai Style', desc: 'Vintage yellow card with red & green stamped ink', icon: '☕' },
+    { id: 'premium-cinematic', label: '4. Premium Cinematic', desc: 'Luxurious vinyl black with golden typography', icon: '👑' },
   ];
 
   return (
-    <div className="w-full max-w-[420px] mx-auto pt-2">
+    <div className="w-full max-w-[460px] mx-auto pt-2">
       
       {/* Collapsible Toggle Trigger */}
       <button
@@ -84,7 +79,7 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
       >
         <div className="flex items-center gap-2">
           <Settings2 className="w-3.5 h-3.5 text-amber-400" />
-          <span>⚙ Customize Bill Details</span>
+          <span>⚙ Customize Bill Details & Styles</span>
         </div>
         {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
@@ -101,7 +96,7 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
                 activeTab === 'style' ? 'bg-amber-500 text-stone-950' : 'text-stone-400 hover:text-stone-200'
               }`}
             >
-              Styles
+              Styles (4)
             </button>
             <button
               onClick={() => setActiveTab('meta')}
@@ -121,26 +116,34 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
             </button>
           </div>
 
-          {/* TAB 1: BILL STYLES */}
+          {/* TAB 1: 4 AUTHENTIC BILL STYLES */}
           {activeTab === 'style' && (
             <div className="space-y-3">
               <div>
                 <label className="block text-[11px] font-semibold text-stone-300 mb-1.5">
-                  Select Bill Style (§23)
+                  Choose Bill Style Template
                 </label>
-                <div className="grid grid-cols-1 gap-1.5">
+                <div className="grid grid-cols-1 gap-2">
                   {stylesList.map((styleItem) => (
                     <button
                       key={styleItem.id}
                       onClick={() => handleTextChange('themeStyle', styleItem.id)}
-                      className={`p-2.5 rounded-xl border text-left transition-all flex items-center justify-between ${
+                      className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between ${
                         bill.themeStyle === styleItem.id
-                          ? 'border-amber-500 bg-amber-950/40 text-amber-200 font-bold ring-1 ring-amber-500'
+                          ? 'border-amber-500 bg-amber-950/40 text-amber-200 font-bold ring-2 ring-amber-500/50'
                           : 'border-stone-800 bg-stone-950/80 text-stone-400 hover:border-stone-700'
                       }`}
                     >
-                      <div className="text-xs">{styleItem.label}</div>
-                      <div className="text-[10px] text-stone-500">{styleItem.desc}</div>
+                      <div>
+                        <div className="text-xs flex items-center gap-1.5">
+                          <span>{styleItem.icon}</span>
+                          <span>{styleItem.label}</span>
+                        </div>
+                        <div className="text-[10px] text-stone-500 mt-0.5 pl-5">{styleItem.desc}</div>
+                      </div>
+                      {bill.themeStyle === styleItem.id && (
+                        <span className="text-xs text-amber-400 font-bold">✓ Active</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -154,7 +157,7 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
                 <div className="flex items-center gap-2">
                   <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 px-3 py-2 bg-stone-950 border border-dashed border-stone-700 rounded-xl hover:border-amber-500 transition-colors text-xs text-stone-300">
                     <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Upload Image</span>
+                    <span>Upload Poster</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -181,7 +184,7 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
                     <input
                       type="range"
                       min="0.05"
-                      max="0.40"
+                      max="0.30"
                       step="0.01"
                       value={bill.posterOpacity}
                       onChange={(e) => handleTextChange('posterOpacity', parseFloat(e.target.value))}
@@ -197,12 +200,12 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
           {activeTab === 'meta' && (
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Restaurant Name</label>
+                <label className="block font-semibold text-stone-300 mb-1">Movie Title</label>
                 <input
                   type="text"
-                  value={bill.hotelName}
-                  onChange={(e) => handleTextChange('hotelName', e.target.value)}
-                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500"
+                  value={bill.movieTitle}
+                  onChange={(e) => handleTextChange('movieTitle', e.target.value)}
+                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500 font-bold"
                 />
               </div>
 
@@ -259,7 +262,7 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
                 <span className="text-xs text-stone-400">Song duration determines price</span>
                 <button
                   onClick={handleAddTrack}
-                  className="flex items-center gap-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-lg text-xs font-bold"
+                  className="flex items-center gap-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-lg text-xs font-bold cursor-pointer"
                 >
                   <Plus className="w-3 h-3" /> Add Song
                 </button>
@@ -274,7 +277,7 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
                         type="text"
                         value={track.name}
                         onChange={(e) => handleTrackChange(idx, 'name', e.target.value)}
-                        className="flex-1 bg-stone-900 border border-stone-800 rounded px-2 py-1 text-xs text-stone-100 focus:outline-none focus:border-amber-500"
+                        className="flex-1 bg-stone-900 border border-stone-800 rounded px-2 py-1 text-xs text-stone-100 focus:outline-none focus:border-amber-500 font-semibold"
                       />
                       <input
                         type="text"
@@ -285,7 +288,7 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
                       <button
                         onClick={() => handleRemoveTrack(idx)}
                         disabled={bill.tracks.length <= 1}
-                        className="text-stone-500 hover:text-red-400 disabled:opacity-30 p-1"
+                        className="text-stone-500 hover:text-red-400 disabled:opacity-30 p-1 cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
