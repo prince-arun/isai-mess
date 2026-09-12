@@ -116,7 +116,7 @@ export async function GET(request: Request) {
       label,
       releaseDate,
       audioSpecs: 'Spotify HD Stereo / 320kbps',
-      hotelName: `${movieTitle.toUpperCase()} இசை உணவகம்`,
+      hotelName: `HOTEL ${movieTitle.toUpperCase()}`,
       hotelSubtitle: `${musicDirector} Special Audio Feast`,
       bgImage,
       tracks,

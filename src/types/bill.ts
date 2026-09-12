@@ -1,30 +1,36 @@
-export type ThemeStyle = 'vintage' | 'blue-ink' | 'modern' | 'dark-kitchen' | 'golden-curry';
+export type ThemeStyle =
+  | 'classic-hotel'
+  | 'madurai-mess'
+  | 'tea-kadai'
+  | 'five-star'
+  | 'night-biryani';
 
 export interface TrackItem {
   id: string;
   name: string;
   singers: string;
-  duration: string; // e.g. "04:55"
-  price?: string;   // e.g. "4.55"
+  duration: string; // e.g. "05:15"
+  price?: string;   // e.g. "5.15"
 }
 
 export interface BillData {
   movieTitle: string;
+  tamilTitle?: string;
   musicDirector: string;
   director: string;
   studio: string;
   label: string;
   releaseDate: string;
-  audioSpecs: string;
+  audioSpecs?: string;
   hotelName: string;
   hotelSubtitle: string;
   billNo: string;
   tableNo: string;
   chefTitle: string;
   tracks: TrackItem[];
-  taxPercent: number; // e.g., 5 for Swara GST
+  taxPercent: number; // e.g. 5 for Swara GST
   tipAmount: number;
-  customFooterNote: string;
+  closingJoke: string;
   bgImage: string | null;
   posterOpacity: number;
   themeStyle: ThemeStyle;
@@ -36,14 +42,15 @@ export interface Preset {
   id: string;
   name: string;
   movieTitle: string;
+  tamilTitle: string;
   musicDirector: string;
   director: string;
   studio: string;
   label: string;
   releaseDate: string;
-  audioSpecs: string;
   hotelName: string;
   hotelSubtitle: string;
+  closingJoke: string;
   bgImage: string;
   tracks: TrackItem[];
   posterOpacity?: number;
