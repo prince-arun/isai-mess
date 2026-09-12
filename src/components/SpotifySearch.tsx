@@ -120,8 +120,8 @@ export const SpotifySearch: React.FC<SpotifySearchProps> = ({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.trim() && setIsOpen(true)}
-          placeholder="🎵 Search for a movie or album (e.g., Vaaranam Aayiram, Roja, 96)..."
-          className="w-full pl-12 pr-10 py-3.5 sm:py-4 bg-stone-900/90 border-2 border-stone-700 hover:border-amber-500/80 focus:border-amber-500 rounded-2xl text-xs sm:text-sm text-stone-100 placeholder-stone-500 shadow-xl focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all font-medium"
+          placeholder="🎵 Search movie or album (e.g. Vaaranam Aayiram)..."
+          className="w-full pl-11 sm:pl-12 pr-10 py-2.5 sm:py-3.5 bg-stone-900/90 border-2 border-stone-700 hover:border-amber-500/80 focus:border-amber-500 rounded-2xl text-xs sm:text-sm text-stone-100 placeholder-stone-500 shadow-xl focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all font-medium"
         />
 
         {/* Clear or Loading Icon */}

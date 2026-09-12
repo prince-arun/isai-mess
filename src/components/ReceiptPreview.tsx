@@ -9,105 +9,6 @@ interface ReceiptPreviewProps {
   isExporting?: boolean;
 }
 
-// Crisp Vector QR Code Component (Spotify / UPI Receipt Style)
-const ReceiptQrCode = ({ theme = 'light' }: { theme?: 'light' | 'yellow' | 'dark' }) => {
-  const fgColor = theme === 'dark' ? '#fbbf24' : theme === 'yellow' ? '#14532d' : '#171717';
-  const bgColor = theme === 'dark' ? '#1c1917' : theme === 'yellow' ? '#fef08a' : '#f5f5f4';
-
-  return (
-    <div className="flex flex-col items-center justify-center pt-2">
-      <div
-        className="p-1.5 rounded-lg border flex items-center justify-center shadow-sm"
-        style={{
-          borderColor: fgColor,
-          backgroundColor: bgColor,
-        }}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 100 100"
-          className="w-16 h-16 sm:w-18 sm:h-18"
-          fill={fgColor}
-        >
-          {/* Top-Left Position Detection Pattern */}
-          <rect x="6" y="6" width="28" height="28" fill={fgColor} rx="2" />
-          <rect x="10" y="10" width="20" height="20" fill={bgColor} rx="1" />
-          <rect x="14" y="14" width="12" height="12" fill={fgColor} rx="1" />
-
-          {/* Top-Right Position Detection Pattern */}
-          <rect x="66" y="6" width="28" height="28" fill={fgColor} rx="2" />
-          <rect x="70" y="10" width="20" height="20" fill={bgColor} rx="1" />
-          <rect x="74" y="14" width="12" height="12" fill={fgColor} rx="1" />
-
-          {/* Bottom-Left Position Detection Pattern */}
-          <rect x="6" y="66" width="28" height="28" fill={fgColor} rx="2" />
-          <rect x="10" y="70" width="20" height="20" fill={bgColor} rx="1" />
-          <rect x="14" y="74" width="12" height="12" fill={fgColor} rx="1" />
-
-          {/* QR Data Matrix Pixels */}
-          <rect x="38" y="8" width="6" height="6" />
-          <rect x="48" y="8" width="6" height="6" />
-          <rect x="56" y="12" width="6" height="6" />
-          <rect x="38" y="20" width="6" height="6" />
-          <rect x="48" y="24" width="6" height="6" />
-
-          <rect x="10" y="40" width="6" height="6" />
-          <rect x="22" y="42" width="6" height="6" />
-          <rect x="34" y="38" width="6" height="6" />
-          <rect x="60" y="40" width="6" height="6" />
-          <rect x="72" y="42" width="6" height="6" />
-          <rect x="84" y="38" width="6" height="6" />
-
-          {/* Center Spotify Waveform Badge */}
-          <circle cx="50" cy="50" r="14" fill={fgColor} />
-          <circle cx="50" cy="50" r="12" fill={bgColor} />
-          <path
-            d="M 44 46 Q 50 43 56 46"
-            stroke={fgColor}
-            strokeWidth="2"
-            fill="none"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 45 50 Q 50 48 55 50"
-            stroke={fgColor}
-            strokeWidth="1.8"
-            fill="none"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 46 54 Q 50 52 54 54"
-            stroke={fgColor}
-            strokeWidth="1.5"
-            fill="none"
-            strokeLinecap="round"
-          />
-
-          <rect x="10" y="52" width="6" height="6" />
-          <rect x="26" y="54" width="6" height="6" />
-          <rect x="68" y="52" width="6" height="6" />
-          <rect x="80" y="56" width="6" height="6" />
-
-          <rect x="38" y="68" width="6" height="6" />
-          <rect x="48" y="74" width="6" height="6" />
-          <rect x="58" y="66" width="6" height="6" />
-          <rect x="42" y="84" width="6" height="6" />
-          <rect x="54" y="82" width="6" height="6" />
-          <rect x="66" y="86" width="6" height="6" />
-          <rect x="78" y="74" width="6" height="6" />
-          <rect x="86" y="82" width="6" height="6" />
-        </svg>
-      </div>
-      <div className="text-[9px] font-mono font-bold tracking-wider mt-1 opacity-80 uppercase">
-        SCAN TO LISTEN ON SPOTIFY
-      </div>
-      <div className="text-[8px] font-mono tracking-widest opacity-60">
-        UPI: ISAI@SPOTIFY
-      </div>
-    </div>
-  );
-};
-
 export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
   ({ bill, className = '' }, ref) => {
 
@@ -191,7 +92,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
         <div
           ref={ref}
           id="receipt-print-node"
-          className={`relative w-full max-w-[480px] mx-auto bg-[#eef1f4] text-[#1a202c] shadow-2xl p-6 sm:p-8 font-mono select-none border border-stone-300 transition-all ${className}`}
+          className={`relative w-full max-w-[480px] mx-auto bg-[#eef1f4] text-[#1a202c] shadow-2xl p-5 sm:p-8 font-mono select-none border border-stone-300 transition-all ${className}`}
           style={{
             clipPath: jaggedClipPath,
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
@@ -203,16 +104,16 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           )}
 
           {/* Top Restaurant Header with Classic Double Oval Logo */}
-          <div className="relative z-10 text-center pb-3 border-b border-dashed border-stone-600">
+          <div className="relative z-10 text-center pb-2.5 border-b border-dashed border-stone-600">
             <div className="flex justify-between items-center text-[10px] text-stone-600 font-bold tracking-wider">
               <span>ESTD 2008</span>
               <span>MUSIC MEALS MEMORIES</span>
             </div>
 
             {/* Oval Mess Badge */}
-            <div className="my-2 inline-block px-8 py-2 border-2 border-stone-800 rounded-[50px] text-center">
-              <div className="text-xl font-black tracking-widest uppercase font-mono">BILLISAI</div>
-              <div className="text-[10px] font-bold tracking-wider">MUSIC RESTAURANT</div>
+            <div className="my-1.5 inline-block px-7 py-1.5 border-2 border-stone-800 rounded-[50px] text-center">
+              <div className="text-lg sm:text-xl font-black tracking-widest uppercase font-mono">BILLISAI</div>
+              <div className="text-[9px] font-bold tracking-wider">MUSIC RESTAURANT</div>
             </div>
 
             <div className="text-[10px] text-stone-600 space-y-0.5">
@@ -222,7 +123,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           </div>
 
           {/* Order Details */}
-          <div className="relative z-10 py-2.5 text-[11px] space-y-1 border-b border-dashed border-stone-600">
+          <div className="relative z-10 py-2 text-[11px] space-y-0.5 border-b border-dashed border-stone-600">
             <div className="flex justify-between">
               <span>BILL NO : <strong>{bill.billNo || '000762'}</strong></span>
               <span className="font-bold">DINE-IN</span>
@@ -256,7 +157,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               <div className="w-14 sm:w-16 text-right shrink-0">AMT({currency})</div>
             </div>
 
-            <div className="space-y-1.5 pt-1.5 text-[11px]">
+            <div className="space-y-1 pt-1 text-[11px]">
               {stats.visibleTracks.map((t, idx) => (
                 <div key={t.id || idx} className="flex justify-between items-start leading-snug">
                   <div className="w-6 sm:w-7 text-stone-600 font-semibold shrink-0">1</div>
@@ -288,7 +189,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               <span>ITEMS : {stats.itemCount}</span>
               <span>DURATION: {stats.formattedTotalTime}</span>
             </div>
-            <div className="flex justify-between text-[11px] pt-1">
+            <div className="flex justify-between text-[11px] pt-0.5">
               <span>SUBTOTAL</span>
               <span className="font-bold">{currency}{stats.subtotal}</span>
             </div>
@@ -301,21 +202,18 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
 
             <div className="pt-2 border-t-2 border-stone-900 flex justify-between items-center">
               <span className="text-base font-black uppercase">TOTAL</span>
-              <span className="text-2xl font-black">{currency}{stats.grandTotal}</span>
+              <span className="text-xl sm:text-2xl font-black">{currency}{stats.grandTotal}</span>
             </div>
             <div className="text-[10px] text-stone-600 italic text-center pt-0.5 font-bold">
               {stats.wordsTotal}
             </div>
           </div>
 
-          {/* Footer with Scannable QR Code */}
-          <div className="relative z-10 pt-2 text-center space-y-1.5 text-[11px]">
+          {/* Footer */}
+          <div className="relative z-10 pt-2 text-center space-y-1 text-[11px]">
             <p className="font-bold italic">
               "{bill.closingJoke || 'Songs are served hot. Memories are free!'}"
             </p>
-
-            <ReceiptQrCode theme="light" />
-
             <p className="text-[10px] text-stone-600 font-bold uppercase pt-1">
               Visit Again for More Melodies!
             </p>
@@ -332,7 +230,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
         <div
           ref={ref}
           id="receipt-print-node"
-          className={`relative w-full max-w-[480px] mx-auto bg-[#fafafa] text-[#171717] shadow-2xl p-6 sm:p-8 font-mono select-none border border-stone-200 transition-all ${className}`}
+          className={`relative w-full max-w-[480px] mx-auto bg-[#fafafa] text-[#171717] shadow-2xl p-5 sm:p-8 font-mono select-none border border-stone-200 transition-all ${className}`}
           style={{
             clipPath: jaggedClipPath,
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
@@ -344,32 +242,32 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           )}
 
           {/* Header */}
-          <div className="relative z-10 pb-3 border-b-2 border-stone-900">
-            <div className="flex justify-between items-start text-[10px] uppercase tracking-wider text-stone-500 font-sans font-bold">
+          <div className="relative z-10 pb-2.5 border-b-2 border-stone-900">
+            <div className="flex justify-between items-start text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-500 font-sans font-bold">
               <div className="text-left leading-tight">GOOD MUSIC<br />ALWAYS PAYS OFF</div>
               <div className="text-right leading-tight">ORDER MUSIC<br />REPEAT :)</div>
             </div>
 
-            <div className="text-center pt-2 space-y-0.5">
+            <div className="text-center pt-1.5 space-y-0.5">
               <div className="inline-flex items-center justify-center gap-1">
-                <span className="text-2xl font-black tracking-widest font-mono">BILLISAI</span>
+                <span className="text-xl sm:text-2xl font-black tracking-widest font-mono">BILLISAI</span>
                 <span className="text-xs font-bold font-sans">TM</span>
               </div>
-              <div className="text-[10px] tracking-widest uppercase font-semibold text-stone-600">SONGS SERVED FRESH</div>
+              <div className="text-[9px] tracking-widest uppercase font-semibold text-stone-600">SONGS SERVED FRESH</div>
             </div>
 
-            <div className="text-center pt-3 space-y-0.5">
-              <h2 className="text-lg sm:text-xl font-black tracking-wider uppercase font-mono">
+            <div className="text-center pt-2 space-y-0.5">
+              <h2 className="text-base sm:text-xl font-black tracking-wider uppercase font-mono">
                 HOTEL {bill.movieTitle.toUpperCase()}
               </h2>
-              <p className="text-[11px] font-bold text-stone-600 tracking-wide uppercase">
+              <p className="text-[10px] sm:text-[11px] font-bold text-stone-600 tracking-wide uppercase">
                 "A {bill.musicDirector.toUpperCase()} SPECIAL"
               </p>
             </div>
           </div>
 
           {/* Metadata */}
-          <div className="relative z-10 py-3 text-[11px] space-y-1 border-b border-stone-400">
+          <div className="relative z-10 py-2.5 text-[11px] space-y-0.5 border-b border-stone-400">
             <div className="flex justify-between">
               <span className="text-stone-500 uppercase font-semibold">COMPOSER</span>
               <span className="font-bold text-stone-900">: {bill.musicDirector}</span>
@@ -393,7 +291,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           </div>
 
           {/* Item Table with Wide Song Column */}
-          <div className="relative z-10 py-3 text-xs">
+          <div className="relative z-10 py-2 text-xs">
             <div className="flex justify-between pb-1 font-bold border-b border-stone-900 uppercase text-[11px]">
               <div className="w-6 sm:w-7 text-left shrink-0">#</div>
               <div className="flex-1 min-w-0 pr-2">SONG NAME</div>
@@ -401,7 +299,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               <div className="w-14 sm:w-16 text-right shrink-0">AMOUNT ({currency})</div>
             </div>
 
-            <div className="space-y-1.5 pt-2">
+            <div className="space-y-1 pt-1.5">
               {stats.visibleTracks.map((t, idx) => (
                 <div key={t.id || idx} className="flex justify-between items-start text-[11px] leading-snug">
                   <div className="w-6 sm:w-7 opacity-70 font-semibold shrink-0">{idx + 1}</div>
@@ -425,12 +323,12 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           </div>
 
           {/* Totals */}
-          <div className="relative z-10 pt-2 pb-3 text-xs space-y-1 border-t-2 border-dashed border-stone-800">
+          <div className="relative z-10 pt-2 pb-2 text-xs space-y-1 border-t-2 border-dashed border-stone-800">
             <div className="flex justify-between items-center text-[11px] font-bold text-stone-700">
               <span>TOTAL SONGS: {stats.itemCount}</span>
               <span>TOTAL DURATION: {stats.formattedTotalTime}</span>
             </div>
-            <div className="flex justify-between items-center text-[11px] pt-1">
+            <div className="flex justify-between items-center text-[11px] pt-0.5">
               <span className="text-stone-600 uppercase">SUBTOTAL</span>
               <span className="font-bold">{currency}{stats.subtotal}</span>
             </div>
@@ -442,15 +340,15 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             )}
 
             <div className="pt-2">
-              <div className="p-3 border-2 border-stone-900 flex justify-between items-center bg-stone-100">
-                <span className="text-sm font-black uppercase tracking-wider">TOTAL AMOUNT</span>
-                <span className="text-2xl font-black">{currency}{stats.grandTotal}</span>
+              <div className="p-2.5 border-2 border-stone-900 flex justify-between items-center bg-stone-100">
+                <span className="text-xs sm:text-sm font-black uppercase tracking-wider">TOTAL AMOUNT</span>
+                <span className="text-xl sm:text-2xl font-black">{currency}{stats.grandTotal}</span>
               </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="relative z-10 pt-3 text-center space-y-2">
+          <div className="relative z-10 pt-2 text-center space-y-1.5">
             <p className="text-[10px] tracking-wider uppercase font-bold text-stone-600">
               *** THANK YOU FOR LISTENING ***
             </p>
@@ -458,16 +356,14 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               "{bill.closingJoke || 'Some songs stay forever.'}"
             </p>
 
-            <ReceiptQrCode theme="light" />
-
             {/* Barcode */}
-            <div className="flex flex-col items-center justify-center pt-2">
-              <div className="h-7 w-4/5 max-w-[200px] flex items-stretch justify-center gap-[2px] opacity-80">
+            <div className="flex flex-col items-center justify-center pt-1">
+              <div className="h-6 w-4/5 max-w-[180px] flex items-stretch justify-center gap-[2px] opacity-80">
                 {[3,1,2,4,1,3,2,1,4,2,1,3,1,2,4,1,2,3,1,4,2,1,3,2,1,4,2,1,3].map((w, i) => (
-                  <div key={i} className="bg-stone-900 h-full" style={{ width: `${w * 1.8}px` }} />
+                  <div key={i} className="bg-stone-900 h-full" style={{ width: `${w * 1.6}px` }} />
                 ))}
               </div>
-              <div className="text-[9px] tracking-widest mt-1 opacity-70">
+              <div className="text-[8px] tracking-widest mt-0.5 opacity-70">
                 * {bill.movieTitle.toUpperCase()} - {releaseDateStr.split('-').pop() || '2008'} *
               </div>
             </div>
@@ -484,7 +380,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
         <div
           ref={ref}
           id="receipt-print-node"
-          className={`relative w-full max-w-[480px] mx-auto bg-[#fef3c7] text-[#14532d] shadow-2xl p-6 sm:p-8 font-mono select-none border-2 border-[#b91c1c]/40 transition-all ${className}`}
+          className={`relative w-full max-w-[480px] mx-auto bg-[#fef3c7] text-[#14532d] shadow-2xl p-5 sm:p-8 font-mono select-none border-2 border-[#b91c1c]/40 transition-all ${className}`}
           style={{
             clipPath: jaggedClipPath,
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45)',
@@ -505,17 +401,17 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             </p>
 
             {/* Red Rubber Stamp Box Logo */}
-            <div className="my-2 p-2 border-2 border-[#b91c1c] rounded-lg inline-block bg-[#fee2e2]/60 transform -rotate-1 shadow-sm">
-              <div className="text-xl font-black tracking-widest text-[#b91c1c] uppercase">
+            <div className="my-1.5 p-2 border-2 border-[#b91c1c] rounded-lg inline-block bg-[#fee2e2]/60 transform -rotate-1 shadow-sm">
+              <div className="text-lg sm:text-xl font-black tracking-widest text-[#b91c1c] uppercase">
                 ♫ BILLISAI TEA KADAI ♬
               </div>
-              <div className="text-[10px] font-bold text-[#15803d]">SONGS & SNACKS SERVED FRESH</div>
+              <div className="text-[9px] font-bold text-[#15803d]">SONGS & SNACKS SERVED FRESH</div>
             </div>
           </div>
 
           {/* Movie Header */}
           <div className="relative z-10 py-2 text-center border-y-2 border-dashed border-[#b91c1c]/50">
-            <h2 className="text-lg sm:text-xl font-black text-[#15803d] tracking-wider uppercase">
+            <h2 className="text-base sm:text-xl font-black text-[#15803d] tracking-wider uppercase">
               HOTEL {bill.movieTitle.toUpperCase()}
             </h2>
             <p className="text-xs font-bold text-[#b91c1c]">
@@ -548,7 +444,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               <div className="w-14 sm:w-16 text-right shrink-0">Amt({currency})</div>
             </div>
 
-            <div className="space-y-1.5 pt-1.5 text-[11px] font-semibold">
+            <div className="space-y-1 pt-1.5 text-[11px] font-semibold">
               {stats.visibleTracks.map((t, idx) => (
                 <div key={t.id || idx} className="flex justify-between items-start leading-snug">
                   <div className="w-6 sm:w-7 text-[#b91c1c] shrink-0">{idx + 1}</div>
@@ -591,17 +487,15 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             {/* Red Rubber Stamp Box Total */}
             <div className="my-2 p-2.5 border-4 border-[#b91c1c] rounded-xl flex justify-between items-center bg-[#fee2e2]/70 transform rotate-1 shadow">
               <span className="text-base font-black text-[#b91c1c] uppercase tracking-wider">TOTAL</span>
-              <span className="text-2xl font-black text-[#b91c1c]">{currency}{stats.grandTotal}</span>
+              <span className="text-xl sm:text-2xl font-black text-[#b91c1c]">{currency}{stats.grandTotal}</span>
             </div>
           </div>
 
-          {/* Footer with QR & Nandri */}
-          <div className="relative z-10 pt-2 space-y-2">
-            <ReceiptQrCode theme="yellow" />
-
+          {/* Footer with Nandri */}
+          <div className="relative z-10 pt-2">
             <div className="flex items-center justify-between pt-1">
               {/* Rubber Stamp Badge */}
-              <div className="w-18 h-18 rounded-full border-2 border-dashed border-[#b91c1c] text-[#b91c1c] flex flex-col items-center justify-center text-center p-1 text-[8px] font-bold transform -rotate-12">
+              <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#b91c1c] text-[#b91c1c] flex flex-col items-center justify-center text-center p-1 text-[8px] font-bold transform -rotate-12">
                 <span>★</span>
                 <span>MUSIC LIFE</span>
                 <span>★</span>
@@ -625,7 +519,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
       <div
         ref={ref}
         id="receipt-print-node"
-        className={`relative w-full max-w-[480px] mx-auto bg-[#141416] text-[#e2e8f0] shadow-2xl p-6 sm:p-8 font-mono select-none border border-amber-500/30 transition-all ${className}`}
+        className={`relative w-full max-w-[480px] mx-auto bg-[#141416] text-[#e2e8f0] shadow-2xl p-5 sm:p-8 font-mono select-none border border-amber-500/30 transition-all ${className}`}
         style={{
           clipPath: jaggedClipPath,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 158, 11, 0.1)',
@@ -637,30 +531,30 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
         )}
 
         {/* Header */}
-        <div className="relative z-10 pb-3 border-b border-amber-500/40">
+        <div className="relative z-10 pb-2.5 border-b border-amber-500/40">
           <div className="flex justify-between items-start text-[9px] uppercase tracking-widest text-amber-400/80 font-bold">
             <div className="text-left leading-tight">FINE MUSIC<br />FINE COMPANY</div>
             <div className="text-right leading-tight">TIME SPENT IN SONGS<br />IS NEVER WASTED</div>
           </div>
 
-          <div className="text-center pt-2 space-y-1">
-            <div className="text-xl font-serif font-bold text-amber-300 tracking-wider">BILLISAI</div>
-            <div className="text-[10px] tracking-widest uppercase text-amber-500 font-medium">A MUSICAL DINING EXPERIENCE</div>
+          <div className="text-center pt-1.5 space-y-0.5">
+            <div className="text-lg sm:text-xl font-serif font-bold text-amber-300 tracking-wider">BILLISAI</div>
+            <div className="text-[9px] tracking-widest uppercase text-amber-500 font-medium">A MUSICAL DINING EXPERIENCE</div>
           </div>
 
-          <div className="text-center pt-3 space-y-0.5">
-            <div className="text-[10px] tracking-widest uppercase text-amber-400 font-bold">PRESENTS</div>
-            <h2 className="text-lg sm:text-xl font-black font-serif text-amber-200 tracking-wider uppercase">
+          <div className="text-center pt-2 space-y-0.5">
+            <div className="text-[9px] tracking-widest uppercase text-amber-400 font-bold">PRESENTS</div>
+            <h2 className="text-base sm:text-xl font-black font-serif text-amber-200 tracking-wider uppercase">
               HOTEL {bill.movieTitle.toUpperCase()}
             </h2>
-            <p className="text-[11px] text-amber-400/90 font-medium tracking-wide uppercase">
+            <p className="text-[10px] sm:text-[11px] text-amber-400/90 font-medium tracking-wide uppercase">
               A {bill.musicDirector.toUpperCase()} FEAST
             </p>
           </div>
         </div>
 
         {/* Metadata */}
-        <div className="relative z-10 py-3 text-[11px] space-y-1 border-b border-amber-500/20 text-stone-300">
+        <div className="relative z-10 py-2.5 text-[11px] space-y-0.5 border-b border-amber-500/20 text-stone-300">
           <div className="flex justify-between">
             <span className="text-amber-400 uppercase font-semibold">COMPOSER</span>
             <span className="font-bold text-stone-100">: {bill.musicDirector}</span>
@@ -680,7 +574,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
         </div>
 
         {/* Items Table with Wide Song Column */}
-        <div className="relative z-10 py-3 text-xs">
+        <div className="relative z-10 py-2 text-xs">
           <div className="flex justify-between pb-1 font-bold border-b border-amber-500/40 uppercase text-[10px] sm:text-[11px] text-amber-300">
             <div className="w-6 sm:w-7 text-left shrink-0">#</div>
             <div className="flex-1 min-w-0 pr-2">SONG NAME</div>
@@ -688,7 +582,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             <div className="w-14 sm:w-16 text-right shrink-0">AMOUNT ({currency})</div>
           </div>
 
-          <div className="space-y-1.5 pt-2">
+          <div className="space-y-1 pt-1.5">
             {stats.visibleTracks.map((t, idx) => (
               <div key={t.id || idx} className="flex justify-between items-start text-[11px] leading-snug">
                 <div className="w-6 sm:w-7 text-amber-400 font-semibold shrink-0">{idx + 1}</div>
@@ -712,12 +606,12 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
         </div>
 
         {/* Totals */}
-        <div className="relative z-10 pt-2 pb-3 text-xs space-y-1 border-t-2 border-dashed border-amber-500/40">
+        <div className="relative z-10 pt-2 pb-2 text-xs space-y-1 border-t-2 border-dashed border-amber-500/40">
           <div className="flex justify-between items-center text-[11px] font-bold text-amber-300">
             <span>TOTAL TRACKS: {stats.itemCount}</span>
             <span>TOTAL DURATION: {stats.totalTimeWords}</span>
           </div>
-          <div className="flex justify-between items-center text-[11px] pt-1">
+          <div className="flex justify-between items-center text-[11px] pt-0.5">
             <span className="text-stone-400 uppercase">SUBTOTAL</span>
             <span className="font-bold">{currency}{stats.subtotal}</span>
           </div>
@@ -730,20 +624,18 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
 
           {/* Gold Framed Box */}
           <div className="pt-2">
-            <div className="p-3 border-2 border-amber-400 rounded-xl flex justify-between items-center bg-amber-950/30">
-              <span className="text-sm font-black text-amber-300 uppercase tracking-wider">TOTAL AMOUNT</span>
-              <span className="text-2xl font-black text-amber-200">{currency}{stats.grandTotal}</span>
+            <div className="p-2.5 border-2 border-amber-400 rounded-xl flex justify-between items-center bg-amber-950/30">
+              <span className="text-xs sm:text-sm font-black text-amber-300 uppercase tracking-wider">TOTAL AMOUNT</span>
+              <span className="text-xl sm:text-2xl font-black text-amber-200">{currency}{stats.grandTotal}</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="relative z-10 pt-3 text-center space-y-2">
+        <div className="relative z-10 pt-2 text-center space-y-1.5">
           <p className="text-[11px] italic font-serif text-amber-200">
             "{bill.closingJoke || 'Some albums are not just heard, they are lived.'}"
           </p>
-
-          <ReceiptQrCode theme="dark" />
 
           {/* Audio Waveform Graphic */}
           <div className="flex items-center justify-center gap-1 py-1">
