@@ -35,6 +35,8 @@ export interface BillData {
   themeStyle: ThemeStyle;
   showTamilText: boolean;
   currencySymbol: string;
+  maxVisibleTracks?: number; // e.g. 15, 20, or undefined for all
+  spotifyUrl?: string;
 }
 
 export interface Preset {

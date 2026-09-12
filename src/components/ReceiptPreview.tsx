@@ -9,10 +9,109 @@ interface ReceiptPreviewProps {
   isExporting?: boolean;
 }
 
+// Crisp Vector QR Code Component (Spotify / UPI Receipt Style)
+const ReceiptQrCode = ({ theme = 'light' }: { theme?: 'light' | 'yellow' | 'dark' }) => {
+  const fgColor = theme === 'dark' ? '#fbbf24' : theme === 'yellow' ? '#14532d' : '#171717';
+  const bgColor = theme === 'dark' ? '#1c1917' : theme === 'yellow' ? '#fef08a' : '#f5f5f4';
+
+  return (
+    <div className="flex flex-col items-center justify-center pt-2">
+      <div
+        className="p-1.5 rounded-lg border flex items-center justify-center shadow-sm"
+        style={{
+          borderColor: fgColor,
+          backgroundColor: bgColor,
+        }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 100 100"
+          className="w-16 h-16 sm:w-18 sm:h-18"
+          fill={fgColor}
+        >
+          {/* Top-Left Position Detection Pattern */}
+          <rect x="6" y="6" width="28" height="28" fill={fgColor} rx="2" />
+          <rect x="10" y="10" width="20" height="20" fill={bgColor} rx="1" />
+          <rect x="14" y="14" width="12" height="12" fill={fgColor} rx="1" />
+
+          {/* Top-Right Position Detection Pattern */}
+          <rect x="66" y="6" width="28" height="28" fill={fgColor} rx="2" />
+          <rect x="70" y="10" width="20" height="20" fill={bgColor} rx="1" />
+          <rect x="74" y="14" width="12" height="12" fill={fgColor} rx="1" />
+
+          {/* Bottom-Left Position Detection Pattern */}
+          <rect x="6" y="66" width="28" height="28" fill={fgColor} rx="2" />
+          <rect x="10" y="70" width="20" height="20" fill={bgColor} rx="1" />
+          <rect x="14" y="74" width="12" height="12" fill={fgColor} rx="1" />
+
+          {/* QR Data Matrix Pixels */}
+          <rect x="38" y="8" width="6" height="6" />
+          <rect x="48" y="8" width="6" height="6" />
+          <rect x="56" y="12" width="6" height="6" />
+          <rect x="38" y="20" width="6" height="6" />
+          <rect x="48" y="24" width="6" height="6" />
+
+          <rect x="10" y="40" width="6" height="6" />
+          <rect x="22" y="42" width="6" height="6" />
+          <rect x="34" y="38" width="6" height="6" />
+          <rect x="60" y="40" width="6" height="6" />
+          <rect x="72" y="42" width="6" height="6" />
+          <rect x="84" y="38" width="6" height="6" />
+
+          {/* Center Spotify Waveform Badge */}
+          <circle cx="50" cy="50" r="14" fill={fgColor} />
+          <circle cx="50" cy="50" r="12" fill={bgColor} />
+          <path
+            d="M 44 46 Q 50 43 56 46"
+            stroke={fgColor}
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 45 50 Q 50 48 55 50"
+            stroke={fgColor}
+            strokeWidth="1.8"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 46 54 Q 50 52 54 54"
+            stroke={fgColor}
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+          />
+
+          <rect x="10" y="52" width="6" height="6" />
+          <rect x="26" y="54" width="6" height="6" />
+          <rect x="68" y="52" width="6" height="6" />
+          <rect x="80" y="56" width="6" height="6" />
+
+          <rect x="38" y="68" width="6" height="6" />
+          <rect x="48" y="74" width="6" height="6" />
+          <rect x="58" y="66" width="6" height="6" />
+          <rect x="42" y="84" width="6" height="6" />
+          <rect x="54" y="82" width="6" height="6" />
+          <rect x="66" y="86" width="6" height="6" />
+          <rect x="78" y="74" width="6" height="6" />
+          <rect x="86" y="82" width="6" height="6" />
+        </svg>
+      </div>
+      <div className="text-[9px] font-mono font-bold tracking-wider mt-1 opacity-80 uppercase">
+        SCAN TO LISTEN ON SPOTIFY
+      </div>
+      <div className="text-[8px] font-mono tracking-widest opacity-60">
+        UPI: ISAI@SPOTIFY
+      </div>
+    </div>
+  );
+};
+
 export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
   ({ bill, className = '' }, ref) => {
 
-    // Calculate totals from track durations
+    // Calculate totals mathematically: Total Duration (Base 60) -> Subtotal (Direct Rupee equivalent)
     const stats = React.useMemo(() => {
       let totalSeconds = 0;
       bill.tracks.forEach((track) => {
@@ -29,44 +128,211 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
       const formattedTotalTime = `${totalMins}:${remSecs < 10 ? '0' : ''}${remSecs}`;
       const totalTimeWords = `${totalMins}M ${remSecs < 10 ? '0' : ''}${remSecs}S`;
 
-      // Price mapping from duration (e.g. 05:15 = 5.15)
-      const subtotal = bill.tracks.reduce((acc, track) => {
-        const priceNum = parseFloat(track.price || track.duration.replace(':', '.')) || 0;
-        return acc + priceNum;
-      }, 0);
+      // Mathematical Subtotal: totalMins.remSecs (e.g. 88 mins 41 secs = ₹88.41)
+      const subtotalStr = `${totalMins}.${remSecs < 10 ? '0' : ''}${remSecs}`;
+      const subtotalNum = parseFloat(subtotalStr) || 0;
 
-      const tax = (subtotal * (bill.taxPercent || 0)) / 100;
-      const grandTotal = subtotal + tax + (bill.tipAmount || 0);
+      const tax = (subtotalNum * (bill.taxPercent || 0)) / 100;
+      const grandTotal = subtotalNum + tax + (bill.tipAmount || 0);
       const grandTotalStr = grandTotal.toFixed(2);
+
+      // Handle visible tracks slicing for large playlists (>20 tracks)
+      const maxLimit = bill.maxVisibleTracks || 20;
+      const hasOverflow = bill.tracks.length > maxLimit;
+      const visibleTracks = hasOverflow ? bill.tracks.slice(0, maxLimit) : bill.tracks;
+      const remainingCount = bill.tracks.length - maxLimit;
+
+      let remDurationStr = '';
+      let remPriceStr = '';
+      if (hasOverflow) {
+        let remSec = 0;
+        bill.tracks.slice(maxLimit).forEach((t) => {
+          const parts = t.duration.split(':');
+          if (parts.length === 2) {
+            remSec += (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+          }
+        });
+        const rMin = Math.floor(remSec / 60);
+        const rSec = remSec % 60;
+        remDurationStr = `${rMin}:${rSec < 10 ? '0' : ''}${rSec}`;
+        remPriceStr = `${rMin}.${rSec < 10 ? '0' : ''}${rSec}`;
+      }
 
       return {
         formattedTotalTime,
         totalTimeWords,
-        subtotal: subtotal.toFixed(2),
+        subtotal: subtotalStr,
         tax: tax.toFixed(2),
         grandTotal: grandTotalStr,
         wordsTotal: amountInWords(grandTotalStr),
         itemCount: bill.tracks.length,
+        visibleTracks,
+        hasOverflow,
+        remainingCount,
+        remDurationStr,
+        remPriceStr,
       };
-    }, [bill.tracks, bill.taxPercent, bill.tipAmount]);
+    }, [bill.tracks, bill.taxPercent, bill.tipAmount, bill.maxVisibleTracks]);
 
     const currency = bill.currencySymbol || '₹';
+    const releaseDateStr = bill.releaseDate || '01-JAN-2024';
 
-    // CSS Zig-Zag mask polygon points for guaranteed internal jagged edges without clipping
+    // CSS Zig-Zag mask polygon points for guaranteed jagged edge look
     const jaggedClipPath = `polygon(
       0% 8px, 2.5% 0px, 5% 8px, 7.5% 0px, 10% 8px, 12.5% 0px, 15% 8px, 17.5% 0px, 20% 8px, 22.5% 0px, 25% 8px, 27.5% 0px, 30% 8px, 32.5% 0px, 35% 8px, 37.5% 0px, 40% 8px, 42.5% 0px, 45% 8px, 47.5% 0px, 50% 8px, 52.5% 0px, 55% 8px, 57.5% 0px, 60% 8px, 62.5% 0px, 65% 8px, 67.5% 0px, 70% 8px, 72.5% 0px, 75% 8px, 77.5% 0px, 80% 8px, 82.5% 0px, 85% 8px, 87.5% 0px, 90% 8px, 92.5% 0px, 95% 8px, 97.5% 0px, 100% 8px,
       100% calc(100% - 8px), 97.5% 100%, 95% calc(100% - 8px), 92.5% 100%, 90% calc(100% - 8px), 87.5% 100%, 85% calc(100% - 8px), 82.5% 100%, 80% calc(100% - 8px), 77.5% 100%, 75% calc(100% - 8px), 72.5% 100%, 70% calc(100% - 8px), 67.5% 100%, 65% calc(100% - 8px), 62.5% 100%, 60% calc(100% - 8px), 57.5% 100%, 55% calc(100% - 8px), 52.5% 100%, 50% calc(100% - 8px), 47.5% 100%, 45% calc(100% - 8px), 42.5% 100%, 40% calc(100% - 8px), 37.5% 100%, 35% calc(100% - 8px), 32.5% 100%, 30% calc(100% - 8px), 27.5% 100%, 25% calc(100% - 8px), 22.5% 100%, 20% calc(100% - 8px), 17.5% 100%, 15% calc(100% - 8px), 12.5% 100%, 10% calc(100% - 8px), 7.5% 100%, 5% calc(100% - 8px), 2.5% 100%, 0% calc(100% - 8px)
     )`;
 
     // --------------------------------------------------------------------------
-    // STYLE 1: MINIMAL MODERN (Clean & Simple)
+    // STYLE 1: AUTHENTIC HOTEL THERMAL (Realistic & Nostalgic - DEFAULT)
+    // --------------------------------------------------------------------------
+    if (bill.themeStyle === 'authentic-thermal') {
+      return (
+        <div
+          ref={ref}
+          id="receipt-print-node"
+          className={`relative w-full max-w-[480px] mx-auto bg-[#eef1f4] text-[#1a202c] shadow-2xl p-6 sm:p-8 font-mono select-none border border-stone-300 transition-all ${className}`}
+          style={{
+            clipPath: jaggedClipPath,
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+          }}
+        >
+          {/* Watermark Poster */}
+          {bill.bgImage && (
+            <div className="absolute inset-0 pointer-events-none bg-center bg-cover bg-no-repeat opacity-[0.10] mix-blend-multiply" style={{ backgroundImage: `url(${bill.bgImage})` }} />
+          )}
+
+          {/* Top Restaurant Header with Classic Double Oval Logo */}
+          <div className="relative z-10 text-center pb-3 border-b border-dashed border-stone-600">
+            <div className="flex justify-between items-center text-[10px] text-stone-600 font-bold tracking-wider">
+              <span>ESTD 2008</span>
+              <span>MUSIC MEALS MEMORIES</span>
+            </div>
+
+            {/* Oval Mess Badge */}
+            <div className="my-2 inline-block px-8 py-2 border-2 border-stone-800 rounded-[50px] text-center">
+              <div className="text-xl font-black tracking-widest uppercase font-mono">BILLISAI</div>
+              <div className="text-[10px] font-bold tracking-wider">MUSIC RESTAURANT</div>
+            </div>
+
+            <div className="text-[10px] text-stone-600 space-y-0.5">
+              <div>No.7, Melody Street, Chennai - 600 028</div>
+              <div>Phone: 044-ISAI-2008 • GSTIN: 33ISAI9988Z1</div>
+            </div>
+          </div>
+
+          {/* Order Details */}
+          <div className="relative z-10 py-2.5 text-[11px] space-y-1 border-b border-dashed border-stone-600">
+            <div className="flex justify-between">
+              <span>BILL NO : <strong>{bill.billNo || '000762'}</strong></span>
+              <span className="font-bold">DINE-IN</span>
+            </div>
+            <div className="flex justify-between">
+              <span>DATE : {releaseDateStr}</span>
+              <span>TIME: 08:30</span>
+            </div>
+            <div className="flex justify-between">
+              <span>CHEF : {bill.musicDirector.toUpperCase()}</span>
+              <span>TABLE: AUD-7</span>
+            </div>
+          </div>
+
+          {/* Hotel & Album Title */}
+          <div className="relative z-10 py-2 text-center border-b border-dashed border-stone-600">
+            <h2 className="text-base sm:text-lg font-black tracking-wider uppercase">
+              HOTEL {bill.movieTitle.toUpperCase()}
+            </h2>
+            <p className="text-[11px] font-bold text-stone-700 uppercase">
+              {bill.musicDirector.toUpperCase()} SPL. MEALS
+            </p>
+          </div>
+
+          {/* Items Table with Wide Song Column */}
+          <div className="relative z-10 py-2 text-xs">
+            <div className="flex justify-between pb-1 font-bold border-b border-stone-800 text-[11px]">
+              <div className="w-6 sm:w-7 text-left shrink-0">QTY</div>
+              <div className="flex-1 min-w-0 pr-2">ITEM</div>
+              <div className="w-12 sm:w-14 text-center shrink-0">TIME</div>
+              <div className="w-14 sm:w-16 text-right shrink-0">AMT({currency})</div>
+            </div>
+
+            <div className="space-y-1.5 pt-1.5 text-[11px]">
+              {stats.visibleTracks.map((t, idx) => (
+                <div key={t.id || idx} className="flex justify-between items-start leading-snug">
+                  <div className="w-6 sm:w-7 text-stone-600 font-semibold shrink-0">1</div>
+                  <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words">
+                    {t.name}
+                  </div>
+                  <div className="w-12 sm:w-14 text-center text-stone-700 font-mono shrink-0">{t.duration}</div>
+                  <div className="w-14 sm:w-16 text-right font-bold font-mono shrink-0">{t.price || t.duration.replace(':', '.')}</div>
+                </div>
+              ))}
+
+              {/* Large Playlist Summary Row */}
+              {stats.hasOverflow && (
+                <div className="flex justify-between items-center text-[10px] font-bold italic text-stone-600 pt-1 border-t border-dotted border-stone-400">
+                  <div className="w-6 sm:w-7 shrink-0">+</div>
+                  <div className="flex-1 min-w-0 pr-2 uppercase">
+                    ... AND {stats.remainingCount} MORE SPECIAL DISHES
+                  </div>
+                  <div className="w-12 sm:w-14 text-center shrink-0 font-mono">{stats.remDurationStr}</div>
+                  <div className="w-14 sm:w-16 text-right shrink-0 font-mono">{stats.remPriceStr}</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Totals */}
+          <div className="relative z-10 pt-2 pb-2 text-xs space-y-1 border-t border-dashed border-stone-600">
+            <div className="flex justify-between text-[11px] font-bold">
+              <span>ITEMS : {stats.itemCount}</span>
+              <span>DURATION: {stats.formattedTotalTime}</span>
+            </div>
+            <div className="flex justify-between text-[11px] pt-1">
+              <span>SUBTOTAL</span>
+              <span className="font-bold">{currency}{stats.subtotal}</span>
+            </div>
+            {bill.taxPercent > 0 && (
+              <div className="flex justify-between text-[11px]">
+                <span>SWARA GST {bill.taxPercent}%</span>
+                <span className="font-bold">{currency}{stats.tax}</span>
+              </div>
+            )}
+
+            <div className="pt-2 border-t-2 border-stone-900 flex justify-between items-center">
+              <span className="text-base font-black uppercase">TOTAL</span>
+              <span className="text-2xl font-black">{currency}{stats.grandTotal}</span>
+            </div>
+            <div className="text-[10px] text-stone-600 italic text-center pt-0.5 font-bold">
+              {stats.wordsTotal}
+            </div>
+          </div>
+
+          {/* Footer with Scannable QR Code */}
+          <div className="relative z-10 pt-2 text-center space-y-1.5 text-[11px]">
+            <p className="font-bold italic">
+              "{bill.closingJoke || 'Songs are served hot. Memories are free!'}"
+            </p>
+
+            <ReceiptQrCode theme="light" />
+
+            <p className="text-[10px] text-stone-600 font-bold uppercase pt-1">
+              Visit Again for More Melodies!
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // --------------------------------------------------------------------------
+    // STYLE 2: MINIMAL MODERN (Clean & Simple)
     // --------------------------------------------------------------------------
     if (bill.themeStyle === 'minimal-modern') {
       return (
         <div
           ref={ref}
           id="receipt-print-node"
-          className={`relative w-full max-w-[480px] mx-auto bg-[#fafafa] text-[#171717] shadow-2xl p-7 sm:p-8 font-mono select-none border border-stone-200 transition-all ${className}`}
+          className={`relative w-full max-w-[480px] mx-auto bg-[#fafafa] text-[#171717] shadow-2xl p-6 sm:p-8 font-mono select-none border border-stone-200 transition-all ${className}`}
           style={{
             clipPath: jaggedClipPath,
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
@@ -110,40 +376,51 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             </div>
             <div className="flex justify-between">
               <span className="text-stone-500 uppercase font-semibold">STUDIO</span>
-              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: {bill.studio}</span>
+              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: {bill.studio || 'Audio Studios (Chennai)'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-stone-500 uppercase font-semibold">LABEL</span>
-              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: {bill.label}</span>
+              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: {bill.label || 'Spotify Records'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-stone-500 uppercase font-semibold">RELEASED</span>
-              <span className="font-bold text-stone-900">: {bill.releaseDate}</span>
+              <span className="font-bold text-stone-900">: {releaseDateStr}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-stone-500 uppercase font-semibold">CUISINE</span>
-              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: Feel Good • Romantic • Youth Special</span>
+              <span className="font-bold text-stone-900 truncate max-w-[270px] text-right">: Melodic • Emotional • Fresh</span>
             </div>
           </div>
 
-          {/* Item Table */}
+          {/* Item Table with Wide Song Column */}
           <div className="relative z-10 py-3 text-xs">
             <div className="flex justify-between pb-1 font-bold border-b border-stone-900 uppercase text-[11px]">
-              <div className="w-8">#</div>
-              <div className="flex-1 px-1">SONG NAME</div>
-              <div className="w-16 text-center">DUR</div>
-              <div className="w-20 text-right">AMOUNT ({currency})</div>
+              <div className="w-6 sm:w-7 text-left shrink-0">#</div>
+              <div className="flex-1 min-w-0 pr-2">SONG NAME</div>
+              <div className="w-12 sm:w-14 text-center shrink-0">DUR</div>
+              <div className="w-14 sm:w-16 text-right shrink-0">AMOUNT ({currency})</div>
             </div>
 
             <div className="space-y-1.5 pt-2">
-              {bill.tracks.map((t, idx) => (
-                <div key={t.id || idx} className="flex justify-between items-center text-[11px] leading-tight">
-                  <div className="w-8 opacity-70 font-semibold">{idx + 1}</div>
-                  <div className="flex-1 px-1 font-bold uppercase truncate">{t.name}</div>
-                  <div className="w-16 text-center font-semibold text-stone-700">{t.duration}</div>
-                  <div className="w-20 text-right font-bold">{t.price || t.duration.replace(':', '.')}</div>
+              {stats.visibleTracks.map((t, idx) => (
+                <div key={t.id || idx} className="flex justify-between items-start text-[11px] leading-snug">
+                  <div className="w-6 sm:w-7 opacity-70 font-semibold shrink-0">{idx + 1}</div>
+                  <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words">{t.name}</div>
+                  <div className="w-12 sm:w-14 text-center font-semibold text-stone-700 shrink-0 font-mono">{t.duration}</div>
+                  <div className="w-14 sm:w-16 text-right font-bold shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
                 </div>
               ))}
+
+              {stats.hasOverflow && (
+                <div className="flex justify-between items-center text-[10px] font-bold italic text-stone-600 pt-1 border-t border-dotted border-stone-400">
+                  <div className="w-6 sm:w-7 shrink-0">+</div>
+                  <div className="flex-1 min-w-0 pr-2 uppercase">
+                    ... AND {stats.remainingCount} MORE SPECIAL DISHES
+                  </div>
+                  <div className="w-12 sm:w-14 text-center shrink-0 font-mono">{stats.remDurationStr}</div>
+                  <div className="w-14 sm:w-16 text-right shrink-0 font-mono">{stats.remPriceStr}</div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -181,139 +458,19 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               "{bill.closingJoke || 'Some songs stay forever.'}"
             </p>
 
+            <ReceiptQrCode theme="light" />
+
             {/* Barcode */}
-            <div className="flex flex-col items-center justify-center pt-1">
-              <div className="h-8 w-4/5 max-w-[220px] flex items-stretch justify-center gap-[2px] opacity-90">
+            <div className="flex flex-col items-center justify-center pt-2">
+              <div className="h-7 w-4/5 max-w-[200px] flex items-stretch justify-center gap-[2px] opacity-80">
                 {[3,1,2,4,1,3,2,1,4,2,1,3,1,2,4,1,2,3,1,4,2,1,3,2,1,4,2,1,3].map((w, i) => (
-                  <div key={i} className="bg-stone-900 h-full" style={{ width: `${w * 2}px` }} />
+                  <div key={i} className="bg-stone-900 h-full" style={{ width: `${w * 1.8}px` }} />
                 ))}
               </div>
               <div className="text-[9px] tracking-widest mt-1 opacity-70">
-                * {bill.movieTitle.toUpperCase()} - {bill.releaseDate.split('-').pop() || '2008'} *
+                * {bill.movieTitle.toUpperCase()} - {releaseDateStr.split('-').pop() || '2008'} *
               </div>
             </div>
-          </div>
-        </div>
-      );
-    }
-
-    // --------------------------------------------------------------------------
-    // STYLE 2: AUTHENTIC HOTEL THERMAL (Realistic & Nostalgic)
-    // --------------------------------------------------------------------------
-    if (bill.themeStyle === 'authentic-thermal') {
-      return (
-        <div
-          ref={ref}
-          id="receipt-print-node"
-          className={`relative w-full max-w-[480px] mx-auto bg-[#eef1f4] text-[#1a202c] shadow-2xl p-7 sm:p-8 font-mono select-none border border-stone-300 transition-all ${className}`}
-          style={{
-            clipPath: jaggedClipPath,
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
-          }}
-        >
-          {/* Watermark Poster */}
-          {bill.bgImage && (
-            <div className="absolute inset-0 pointer-events-none bg-center bg-cover bg-no-repeat opacity-[0.10] mix-blend-multiply" style={{ backgroundImage: `url(${bill.bgImage})` }} />
-          )}
-
-          {/* Top Restaurant Header with Classic Double Oval Logo */}
-          <div className="relative z-10 text-center pb-3 border-b border-dashed border-stone-600">
-            <div className="flex justify-between items-center text-[10px] text-stone-600 font-bold tracking-wider">
-              <span>ESTD 2008</span>
-              <span>MUSIC MEALS MEMORIES</span>
-            </div>
-
-            {/* Oval Mess Badge */}
-            <div className="my-2 inline-block px-8 py-2 border-2 border-stone-800 rounded-[50px] text-center">
-              <div className="text-xl font-black tracking-widest uppercase font-mono">BILLISAI</div>
-              <div className="text-[10px] font-bold tracking-wider">MUSIC RESTAURANT</div>
-            </div>
-
-            <div className="text-[10px] text-stone-600 space-y-0.5">
-              <div>No.7, Melody Street, Chennai - 600 028</div>
-              <div>Phone: 044-ISAI-2008 • GSTIN: 33ISAI9988Z1</div>
-            </div>
-          </div>
-
-          {/* Order Details */}
-          <div className="relative z-10 py-2.5 text-[11px] space-y-1 border-b border-dashed border-stone-600">
-            <div className="flex justify-between">
-              <span>BILL NO : <strong>{bill.billNo || '000762'}</strong></span>
-              <span className="font-bold">DINE-IN</span>
-            </div>
-            <div className="flex justify-between">
-              <span>DATE : {bill.releaseDate}</span>
-              <span>TIME: 08:30</span>
-            </div>
-            <div className="flex justify-between">
-              <span>WAITER : ISAI KUMAR</span>
-              <span>TABLE: AUD-7</span>
-            </div>
-          </div>
-
-          {/* Hotel & Album Title */}
-          <div className="relative z-10 py-2 text-center border-b border-dashed border-stone-600">
-            <h2 className="text-base sm:text-lg font-black tracking-wider uppercase">
-              HOTEL {bill.movieTitle.toUpperCase()}
-            </h2>
-            <p className="text-[11px] font-bold text-stone-700 uppercase">
-              {bill.musicDirector.toUpperCase()} SPL. MEALS
-            </p>
-          </div>
-
-          {/* Items Table */}
-          <div className="relative z-10 py-2 text-xs">
-            <div className="flex justify-between pb-1 font-bold border-b border-stone-800 text-[11px]">
-              <div className="w-8">QTY</div>
-              <div className="flex-1 px-1">ITEM</div>
-              <div className="w-16 text-center">TIME</div>
-              <div className="w-20 text-right">AMT({currency})</div>
-            </div>
-
-            <div className="space-y-1.5 pt-1.5 text-[11px]">
-              {bill.tracks.map((t, idx) => (
-                <div key={t.id || idx} className="flex justify-between items-center">
-                  <div className="w-8 text-stone-600 font-semibold">1</div>
-                  <div className="flex-1 px-1 font-bold uppercase truncate">{t.name}</div>
-                  <div className="w-16 text-center text-stone-700">{t.duration}</div>
-                  <div className="w-20 text-right font-bold">{t.price || t.duration.replace(':', '.')}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Totals */}
-          <div className="relative z-10 pt-2 pb-2 text-xs space-y-1 border-t border-dashed border-stone-600">
-            <div className="flex justify-between text-[11px] font-bold">
-              <span>ITEMS : {stats.itemCount}</span>
-              <span>DURATION: {stats.formattedTotalTime}</span>
-            </div>
-            <div className="flex justify-between text-[11px] pt-1">
-              <span>SUBTOTAL</span>
-              <span className="font-bold">{stats.subtotal}</span>
-            </div>
-            <div className="flex justify-between text-[11px]">
-              <span>SWARA GST 5%</span>
-              <span className="font-bold">{stats.tax}</span>
-            </div>
-
-            <div className="pt-2 border-t-2 border-stone-900 flex justify-between items-center">
-              <span className="text-base font-black uppercase">TOTAL</span>
-              <span className="text-2xl font-black">{currency}{stats.grandTotal}</span>
-            </div>
-            <div className="text-[10px] text-stone-600 italic text-center pt-0.5 font-bold">
-              {stats.wordsTotal}
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="relative z-10 pt-3 text-center space-y-1 text-[11px]">
-            <p className="font-bold italic">
-              "{bill.closingJoke || 'Songs are served hot. Memories are free!'}"
-            </p>
-            <p className="text-[10px] text-stone-600 font-bold uppercase pt-1">
-              Visit Again for More Melodies!
-            </p>
           </div>
         </div>
       );
@@ -327,7 +484,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
         <div
           ref={ref}
           id="receipt-print-node"
-          className={`relative w-full max-w-[480px] mx-auto bg-[#fef3c7] text-[#14532d] shadow-2xl p-7 sm:p-8 font-mono select-none border-2 border-[#b91c1c]/40 transition-all ${className}`}
+          className={`relative w-full max-w-[480px] mx-auto bg-[#fef3c7] text-[#14532d] shadow-2xl p-6 sm:p-8 font-mono select-none border-2 border-[#b91c1c]/40 transition-all ${className}`}
           style={{
             clipPath: jaggedClipPath,
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45)',
@@ -373,7 +530,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
               <span>Table : Tea Kadai - 1</span>
             </div>
             <div className="flex justify-between">
-              <span>Date : {bill.releaseDate}</span>
+              <span>Date : {releaseDateStr}</span>
               <span>Time : 08:30 AM</span>
             </div>
             <div className="flex justify-between text-[#b91c1c]">
@@ -382,24 +539,35 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             </div>
           </div>
 
-          {/* Table */}
+          {/* Table with Wide Song Column */}
           <div className="relative z-10 py-2 text-xs">
             <div className="flex justify-between pb-1 font-bold text-[#b91c1c] border-b border-[#b91c1c] text-[11px]">
-              <div className="w-8">#</div>
-              <div className="flex-1 px-1">Song Name</div>
-              <div className="w-16 text-center">Time</div>
-              <div className="w-20 text-right">Amt({currency})</div>
+              <div className="w-6 sm:w-7 text-left shrink-0">#</div>
+              <div className="flex-1 min-w-0 pr-2">Song Name</div>
+              <div className="w-12 sm:w-14 text-center shrink-0">Time</div>
+              <div className="w-14 sm:w-16 text-right shrink-0">Amt({currency})</div>
             </div>
 
             <div className="space-y-1.5 pt-1.5 text-[11px] font-semibold">
-              {bill.tracks.map((t, idx) => (
-                <div key={t.id || idx} className="flex justify-between items-center">
-                  <div className="w-8 text-[#b91c1c]">{idx + 1}</div>
-                  <div className="flex-1 px-1 text-[#15803d] font-bold uppercase truncate">{t.name}</div>
-                  <div className="w-16 text-center text-[#b91c1c]">{t.duration}</div>
-                  <div className="w-20 text-right text-[#15803d] font-bold">{t.price || t.duration.replace(':', '.')}</div>
+              {stats.visibleTracks.map((t, idx) => (
+                <div key={t.id || idx} className="flex justify-between items-start leading-snug">
+                  <div className="w-6 sm:w-7 text-[#b91c1c] shrink-0">{idx + 1}</div>
+                  <div className="flex-1 min-w-0 pr-2 text-[#15803d] font-bold uppercase break-words">{t.name}</div>
+                  <div className="w-12 sm:w-14 text-center text-[#b91c1c] shrink-0 font-mono">{t.duration}</div>
+                  <div className="w-14 sm:w-16 text-right text-[#15803d] font-bold shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
                 </div>
               ))}
+
+              {stats.hasOverflow && (
+                <div className="flex justify-between items-center text-[10px] font-bold italic text-[#b91c1c] pt-1 border-t border-dotted border-[#b91c1c]/40">
+                  <div className="w-6 sm:w-7 shrink-0">+</div>
+                  <div className="flex-1 min-w-0 pr-2 uppercase">
+                    ... AND {stats.remainingCount} MORE SNACKS
+                  </div>
+                  <div className="w-12 sm:w-14 text-center shrink-0 font-mono">{stats.remDurationStr}</div>
+                  <div className="w-14 sm:w-16 text-right shrink-0 font-mono">{stats.remPriceStr}</div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -411,12 +579,14 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             </div>
             <div className="flex justify-between text-[11px] text-[#15803d]">
               <span>Subtotal</span>
-              <span className="font-bold">{stats.subtotal}</span>
+              <span className="font-bold">{currency}{stats.subtotal}</span>
             </div>
-            <div className="flex justify-between text-[11px] text-[#15803d]">
-              <span>Swara GST (5%)</span>
-              <span className="font-bold">{stats.tax}</span>
-            </div>
+            {bill.taxPercent > 0 && (
+              <div className="flex justify-between text-[11px] text-[#15803d]">
+                <span>Swara GST ({bill.taxPercent}%)</span>
+                <span className="font-bold">{currency}{stats.tax}</span>
+              </div>
+            )}
 
             {/* Red Rubber Stamp Box Total */}
             <div className="my-2 p-2.5 border-4 border-[#b91c1c] rounded-xl flex justify-between items-center bg-[#fee2e2]/70 transform rotate-1 shadow">
@@ -425,19 +595,23 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             </div>
           </div>
 
-          {/* Footer with Circular Stamp & Nandri Note */}
-          <div className="relative z-10 pt-2 flex items-center justify-between">
-            {/* Rubber Stamp Badge */}
-            <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#b91c1c] text-[#b91c1c] flex flex-col items-center justify-center text-center p-1 text-[8px] font-bold transform -rotate-12">
-              <span>★</span>
-              <span>MUSIC MAKES LIFE BETTER</span>
-              <span>★</span>
-            </div>
+          {/* Footer with QR & Nandri */}
+          <div className="relative z-10 pt-2 space-y-2">
+            <ReceiptQrCode theme="yellow" />
 
-            {/* Nandri handwritten script */}
-            <div className="text-right">
-              <div className="text-sm font-serif italic font-black text-[#15803d]">Nandri!</div>
-              <div className="text-[11px] font-serif italic text-[#b91c1c]">Keep Listening! ❤️</div>
+            <div className="flex items-center justify-between pt-1">
+              {/* Rubber Stamp Badge */}
+              <div className="w-18 h-18 rounded-full border-2 border-dashed border-[#b91c1c] text-[#b91c1c] flex flex-col items-center justify-center text-center p-1 text-[8px] font-bold transform -rotate-12">
+                <span>★</span>
+                <span>MUSIC LIFE</span>
+                <span>★</span>
+              </div>
+
+              {/* Nandri handwritten script */}
+              <div className="text-right">
+                <div className="text-sm font-serif italic font-black text-[#15803d]">Nandri!</div>
+                <div className="text-[11px] font-serif italic text-[#b91c1c]">Keep Listening! ❤️</div>
+              </div>
             </div>
           </div>
         </div>
@@ -451,7 +625,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
       <div
         ref={ref}
         id="receipt-print-node"
-        className={`relative w-full max-w-[480px] mx-auto bg-[#141416] text-[#e2e8f0] shadow-2xl p-7 sm:p-8 font-mono select-none border border-amber-500/30 transition-all ${className}`}
+        className={`relative w-full max-w-[480px] mx-auto bg-[#141416] text-[#e2e8f0] shadow-2xl p-6 sm:p-8 font-mono select-none border border-amber-500/30 transition-all ${className}`}
         style={{
           clipPath: jaggedClipPath,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 158, 11, 0.1)',
@@ -493,36 +667,47 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           </div>
           <div className="flex justify-between">
             <span className="text-amber-400 uppercase font-semibold">STUDIO</span>
-            <span className="font-bold text-stone-100 truncate max-w-[270px] text-right">: {bill.studio}</span>
+            <span className="font-bold text-stone-100 truncate max-w-[270px] text-right">: {bill.studio || 'Panchathan Studios (Chennai)'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-amber-400 uppercase font-semibold">LABEL</span>
-            <span className="font-bold text-stone-100 truncate max-w-[270px] text-right">: {bill.label}</span>
+            <span className="font-bold text-stone-100 truncate max-w-[270px] text-right">: {bill.label || 'Spotify Premium'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-amber-400 uppercase font-semibold">RELEASED</span>
-            <span className="font-bold text-stone-100">: {bill.releaseDate}</span>
+            <span className="font-bold text-stone-100">: {releaseDateStr}</span>
           </div>
         </div>
 
-        {/* Items Table */}
+        {/* Items Table with Wide Song Column */}
         <div className="relative z-10 py-3 text-xs">
           <div className="flex justify-between pb-1 font-bold border-b border-amber-500/40 uppercase text-[10px] sm:text-[11px] text-amber-300">
-            <div className="w-8">#</div>
-            <div className="flex-1 px-1">SONG NAME</div>
-            <div className="w-16 text-center">DURATION</div>
-            <div className="w-20 text-right">AMOUNT ({currency})</div>
+            <div className="w-6 sm:w-7 text-left shrink-0">#</div>
+            <div className="flex-1 min-w-0 pr-2">SONG NAME</div>
+            <div className="w-12 sm:w-14 text-center shrink-0">DURATION</div>
+            <div className="w-14 sm:w-16 text-right shrink-0">AMOUNT ({currency})</div>
           </div>
 
           <div className="space-y-1.5 pt-2">
-            {bill.tracks.map((t, idx) => (
-              <div key={t.id || idx} className="flex justify-between items-center text-[11px] leading-tight">
-                <div className="w-8 text-amber-400 font-semibold">{idx + 1}</div>
-                <div className="flex-1 px-1 font-bold uppercase truncate text-stone-100">{t.name}</div>
-                <div className="w-16 text-center text-stone-300 font-semibold">{t.duration}</div>
-                <div className="w-20 text-right font-bold text-amber-200">{t.price || t.duration.replace(':', '.')}</div>
+            {stats.visibleTracks.map((t, idx) => (
+              <div key={t.id || idx} className="flex justify-between items-start text-[11px] leading-snug">
+                <div className="w-6 sm:w-7 text-amber-400 font-semibold shrink-0">{idx + 1}</div>
+                <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words text-stone-100">{t.name}</div>
+                <div className="w-12 sm:w-14 text-center text-stone-300 font-semibold shrink-0 font-mono">{t.duration}</div>
+                <div className="w-14 sm:w-16 text-right font-bold text-amber-200 shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
               </div>
             ))}
+
+            {stats.hasOverflow && (
+              <div className="flex justify-between items-center text-[10px] font-bold italic text-amber-400/80 pt-1 border-t border-dotted border-amber-500/30">
+                <div className="w-6 sm:w-7 shrink-0">+</div>
+                <div className="flex-1 min-w-0 pr-2 uppercase">
+                  ... AND {stats.remainingCount} MORE TRACKS
+                </div>
+                <div className="w-12 sm:w-14 text-center shrink-0 font-mono">{stats.remDurationStr}</div>
+                <div className="w-14 sm:w-16 text-right shrink-0 font-mono">{stats.remPriceStr}</div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -557,6 +742,8 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           <p className="text-[11px] italic font-serif text-amber-200">
             "{bill.closingJoke || 'Some albums are not just heard, they are lived.'}"
           </p>
+
+          <ReceiptQrCode theme="dark" />
 
           {/* Audio Waveform Graphic */}
           <div className="flex items-center justify-center gap-1 py-1">

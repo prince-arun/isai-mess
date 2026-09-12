@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Header } from '../components/Header';
 import { SpotifySearch } from '../components/SpotifySearch';
 import { ReceiptPreview } from '../components/ReceiptPreview';
@@ -8,10 +8,20 @@ import { ExportControls } from '../components/ExportControls';
 import { CustomizeDrawer } from '../components/CustomizeDrawer';
 import { PRESETS } from '../data/presets';
 import { BillData, Preset, ThemeStyle } from '../types/bill';
-import { Flame, Loader2 } from 'lucide-react';
+import { getRandomJoke } from '../data/jokes';
+import { Flame, Loader2, Sparkles } from 'lucide-react';
+
+interface TrendingAlbum {
+  id: string;
+  name: string;
+  artist: string;
+  releaseDate: string;
+  totalTracks: number;
+  imageUrl: string;
+}
 
 export default function HomePage() {
-  // Initialize with Vaaranam Aayiram
+  // Initialize with Vaaranam Aayiram and Authentic Hotel Thermal style by default
   const defaultPreset = PRESETS[0];
 
   const [bill, setBill] = useState<BillData>({
@@ -33,16 +43,38 @@ export default function HomePage() {
     closingJoke: defaultPreset.closingJoke,
     bgImage: defaultPreset.bgImage,
     posterOpacity: defaultPreset.posterOpacity || 0.14,
-    themeStyle: 'minimal-modern',
+    themeStyle: 'authentic-thermal', // Hotel Thermal as default
     showTamilText: true,
     currencySymbol: '₹',
+    maxVisibleTracks: 20,
   });
 
   const [activePresetId, setActivePresetId] = useState<string>(defaultPreset.id);
   const [isCooking, setIsCooking] = useState<boolean>(false);
   const [cookingTitle, setCookingTitle] = useState<string>('');
+  const [trendingAlbums, setTrendingAlbums] = useState<TrendingAlbum[]>([]);
+  const [isLoadingTrending, setIsLoadingTrending] = useState<boolean>(false);
 
   const receiptRef = useRef<HTMLDivElement | null>(null);
+
+  // Fetch daily refreshed trending Tamil albums from Spotify API
+  useEffect(() => {
+    async function loadTrending() {
+      try {
+        setIsLoadingTrending(true);
+        const res = await fetch('/api/spotify/trending');
+        const data = await res.json();
+        if (data.albums && data.albums.length > 0) {
+          setTrendingAlbums(data.albums);
+        }
+      } catch (err) {
+        console.error('Failed to load trending Tamil albums', err);
+      } finally {
+        setIsLoadingTrending(false);
+      }
+    }
+    loadTrending();
+  }, []);
 
   // Trigger cooking micro-reveal animation
   const triggerCookingAnimation = (title: string, callback: () => void) => {
@@ -54,7 +86,7 @@ export default function HomePage() {
     }, 400);
   };
 
-  // Handle Preset Selection (Popular Orders)
+  // Handle Preset Selection (Classic Favorites)
   const handleSelectPreset = (preset: Preset) => {
     setActivePresetId(preset.id);
     triggerCookingAnimation(preset.movieTitle, () => {
@@ -78,6 +110,41 @@ export default function HomePage() {
     });
   };
 
+  // Handle Dynamic Trending Album Click
+  const handleSelectTrendingAlbum = async (album: TrendingAlbum) => {
+    setActivePresetId(album.id);
+    setCookingTitle(album.name);
+    setIsCooking(true);
+
+    try {
+      const res = await fetch(`/api/spotify/album?id=${album.id}`);
+      const data = await res.json();
+
+      if (data && !data.error) {
+        setBill((prev) => ({
+          ...prev,
+          movieTitle: data.movieTitle,
+          tamilTitle: data.movieTitle,
+          musicDirector: data.musicDirector,
+          label: data.label,
+          releaseDate: data.releaseDate || '01-JAN-2024',
+          hotelName: `HOTEL ${data.movieTitle.toUpperCase()}`,
+          hotelSubtitle: `${data.musicDirector} Special Audio Feast`,
+          bgImage: data.bgImage,
+          posterOpacity: 0.14,
+          tracks: data.tracks,
+          closingJoke: getRandomJoke(),
+          billNo: `BILL-${Math.floor(Math.random() * 900 + 100)}`,
+          spotifyUrl: `https://open.spotify.com/album/${album.id}`,
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to load trending album details', err);
+    } finally {
+      setIsCooking(false);
+    }
+  };
+
   // Handle Spotify Search Auto-Fill
   const handleAutoFillBill = (spotifyBillData: Partial<BillData>) => {
     setActivePresetId('');
@@ -89,10 +156,10 @@ export default function HomePage() {
     });
   };
 
-  // Style templates list for instant switching
+  // Style templates list in re-ordered priority: Hotel Thermal is #1
   const styleTemplates: { id: ThemeStyle; label: string; icon: string }[] = [
-    { id: 'minimal-modern', label: '1. Minimal Modern', icon: '⚪' },
-    { id: 'authentic-thermal', label: '2. Hotel Thermal', icon: '🧾' },
+    { id: 'authentic-thermal', label: '1. Hotel Thermal', icon: '🧾' },
+    { id: 'minimal-modern', label: '2. Minimal Modern', icon: '⚪' },
     { id: 'tea-kadai', label: '3. 90s Tea Kadai', icon: '☕' },
     { id: 'premium-cinematic', label: '4. Premium Gold', icon: '👑' },
   ];
@@ -103,7 +170,7 @@ export default function HomePage() {
       {/* 1. BRAND HEADER */}
       <Header />
 
-      {/* 2. HERO SEARCH & POPULAR ORDERS */}
+      {/* 2. HERO SEARCH & POPULAR / TRENDING ORDERS */}
       <section className="w-full max-w-2xl mx-auto px-4 pt-2 pb-5 space-y-3">
         
         {/* Search Bar */}
@@ -115,30 +182,55 @@ export default function HomePage() {
           }}
         />
 
-        {/* Popular Orders Chips */}
+        {/* Popular & Trending Orders Chips */}
         <div className="flex flex-col items-center space-y-2 pt-1">
-          <span className="text-xs font-semibold text-stone-400 flex items-center gap-1">
+          <span className="text-xs font-semibold text-stone-400 flex items-center gap-1.5">
             <Flame className="w-3.5 h-3.5 text-orange-400" />
-            <span>Popular orders</span>
+            <span>Today's Trending Albums</span>
+            <span className="text-[10px] px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full font-bold border border-amber-500/30">
+              Daily Refreshed
+            </span>
           </span>
 
           <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
-            {PRESETS.map((preset) => {
-              const isActive = activePresetId === preset.id;
-              return (
-                <button
-                  key={preset.id}
-                  onClick={() => handleSelectPreset(preset)}
-                  className={`text-xs px-3 py-1.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-1 cursor-pointer ${
-                    isActive
-                      ? 'bg-amber-500 text-stone-950 font-bold shadow-md shadow-amber-500/20 scale-105 ring-2 ring-amber-400'
-                      : 'bg-stone-900/90 text-stone-300 hover:bg-stone-800 hover:text-amber-200 border border-stone-800'
-                  }`}
-                >
-                  {preset.name}
-                </button>
-              );
-            })}
+            {trendingAlbums.length > 0 ? (
+              /* Dynamic Spotify Trending Albums */
+              trendingAlbums.map((alb) => {
+                const isActive = activePresetId === alb.id;
+                return (
+                  <button
+                    key={alb.id}
+                    onClick={() => handleSelectTrendingAlbum(alb)}
+                    className={`text-xs px-3 py-1.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                      isActive
+                        ? 'bg-amber-500 text-stone-950 font-bold shadow-md shadow-amber-500/20 scale-105 ring-2 ring-amber-400'
+                        : 'bg-stone-900/90 text-amber-200 hover:bg-stone-800 hover:text-amber-100 border border-amber-500/30'
+                    }`}
+                  >
+                    <Sparkles className="w-3 h-3 text-amber-400" />
+                    <span>{alb.name}</span>
+                  </button>
+                );
+              })
+            ) : (
+              /* Fallback Classic Presets if API is loading/offline */
+              PRESETS.map((preset) => {
+                const isActive = activePresetId === preset.id;
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => handleSelectPreset(preset)}
+                    className={`text-xs px-3 py-1.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-1 cursor-pointer ${
+                      isActive
+                        ? 'bg-amber-500 text-stone-950 font-bold shadow-md shadow-amber-500/20 scale-105 ring-2 ring-amber-400'
+                        : 'bg-stone-900/90 text-stone-300 hover:bg-stone-800 hover:text-amber-200 border border-stone-800'
+                    }`}
+                  >
+                    {preset.name}
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 

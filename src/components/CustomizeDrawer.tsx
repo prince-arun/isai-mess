@@ -62,9 +62,10 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
     }
   };
 
+  // Re-ordered: Hotel Thermal is #1
   const stylesList: { id: ThemeStyle; label: string; desc: string; icon: string }[] = [
-    { id: 'minimal-modern', label: '1. Minimal Modern', desc: 'Clean, stark white with Spotify soundwave', icon: '⚪' },
-    { id: 'authentic-thermal', label: '2. Authentic Hotel Thermal', desc: 'Realistic grey thermal roll with mess oval badge', icon: '🧾' },
+    { id: 'authentic-thermal', label: '1. Hotel Thermal', desc: 'Realistic grey thermal roll with mess oval badge & GSTIN', icon: '🧾' },
+    { id: 'minimal-modern', label: '2. Minimal Modern', desc: 'Clean, stark white with typography and barcode', icon: '⚪' },
     { id: 'tea-kadai', label: '3. 90s Tea-Kadai Style', desc: 'Vintage yellow card with red & green stamped ink', icon: '☕' },
     { id: 'premium-cinematic', label: '4. Premium Cinematic', desc: 'Luxurious vinyl black with golden typography', icon: '👑' },
   ];
@@ -149,6 +150,37 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
                 </div>
               </div>
 
+              {/* Story Optimization: Visible Tracks Limit for Large Playlists */}
+              {bill.tracks.length > 15 && (
+                <div className="pt-2 border-t border-stone-800">
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1.5">
+                    Track Display Limit (Story Fit)
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { value: 15, label: 'Top 15' },
+                      { value: 20, label: 'Top 20 (Best)' },
+                      { value: 999, label: 'Show All' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => handleTextChange('maxVisibleTracks', opt.value === 999 ? undefined : opt.value)}
+                        className={`py-1.5 px-2 rounded-lg text-xs font-bold border transition-all ${
+                          (opt.value === 999 && !bill.maxVisibleTracks) || bill.maxVisibleTracks === opt.value
+                            ? 'bg-amber-500 text-stone-950 border-amber-400'
+                            : 'bg-stone-950 text-stone-400 border-stone-800 hover:border-stone-700'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-stone-500 mt-1">
+                    Receipt totals and durations will still include all {bill.tracks.length} songs.
+                  </p>
+                </div>
+              )}
+
               {/* Watermark Poster Upload */}
               <div className="pt-2 border-t border-stone-800 space-y-2">
                 <label className="block text-[11px] font-semibold text-stone-300">
@@ -200,7 +232,7 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
           {activeTab === 'meta' && (
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Movie Title</label>
+                <label className="block font-semibold text-stone-300 mb-1">Movie / Album Title</label>
                 <input
                   type="text"
                   value={bill.movieTitle}
@@ -210,12 +242,23 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Head Chef (Composer)</label>
+                <label className="block font-semibold text-stone-300 mb-1">Head Chef (Music Composer)</label>
                 <input
                   type="text"
                   value={bill.musicDirector}
                   onChange={(e) => handleTextChange('musicDirector', e.target.value)}
                   className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-stone-300 mb-1">Release Date</label>
+                <input
+                  type="text"
+                  value={bill.releaseDate}
+                  onChange={(e) => handleTextChange('releaseDate', e.target.value)}
+                  placeholder="e.g. 14-APR-2000 or 2024"
+                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500 font-mono"
                 />
               </div>
 

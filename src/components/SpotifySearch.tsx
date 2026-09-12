@@ -86,6 +86,7 @@ export const SpotifySearch: React.FC<SpotifySearchProps> = ({
           tamilTitle: data.movieTitle,
           musicDirector: data.musicDirector,
           label: data.label,
+          releaseDate: data.releaseDate || '01-JAN-2024',
           hotelName: `HOTEL ${data.movieTitle.toUpperCase()}`,
           hotelSubtitle: `${data.musicDirector} Special Audio Feast`,
           bgImage: data.bgImage,
@@ -93,6 +94,7 @@ export const SpotifySearch: React.FC<SpotifySearchProps> = ({
           tracks: data.tracks,
           closingJoke: getRandomJoke(),
           billNo: `BILL-${Math.floor(Math.random() * 900 + 100)}`,
+          spotifyUrl: `https://open.spotify.com/album/${album.id}`,
         });
         setQuery('');
       } else {
