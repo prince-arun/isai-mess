@@ -9,6 +9,81 @@ interface ReceiptPreviewProps {
   isExporting?: boolean;
 }
 
+// Authentic Clumsy / Organic Hand-Drawn Highlighter Marker Stroke
+const MarkerHighlight = ({
+  children,
+  theme = 'thermal',
+}: {
+  children: React.ReactNode;
+  theme?: 'thermal' | 'modern' | 'tea' | 'cinematic';
+}) => {
+  if (theme === 'tea') {
+    return (
+      <div className="relative w-full my-0.5">
+        {/* Organic Hand-Drawn Red Stamp / Marker */}
+        <div
+          className="absolute inset-0 -inset-x-2 -inset-y-[2px] pointer-events-none -z-0 opacity-85"
+          style={{
+            background: 'linear-gradient(105deg, rgba(254, 226, 226, 0.95) 0%, rgba(254, 202, 202, 0.88) 55%, rgba(252, 165, 165, 0.92) 100%)',
+            clipPath: 'polygon(0.5% 10%, 25% 4%, 75% 6%, 98.5% 2%, 99.5% 88%, 70% 95%, 20% 92%, 0.8% 96%)',
+            transform: 'rotate(-0.4deg) skewX(-1deg)',
+            borderBottom: '2px solid rgba(185, 28, 28, 0.65)',
+          }}
+        />
+        <div className="relative z-10">{children}</div>
+      </div>
+    );
+  }
+
+  if (theme === 'cinematic') {
+    return (
+      <div className="relative w-full my-0.5">
+        {/* Glowing Gold Foil Stroke */}
+        <div
+          className="absolute inset-0 -inset-x-2 -inset-y-[2px] pointer-events-none -z-0"
+          style={{
+            background: 'linear-gradient(100deg, rgba(245, 158, 11, 0.28) 0%, rgba(251, 191, 36, 0.38) 50%, rgba(245, 158, 11, 0.25) 100%)',
+            clipPath: 'polygon(0.3% 12%, 35% 4%, 80% 6%, 99% 3%, 98.8% 88%, 65% 94%, 15% 92%, 0.8% 96%)',
+            transform: 'rotate(-0.3deg)',
+            borderTop: '1px solid rgba(251, 191, 36, 0.4)',
+            borderBottom: '1px solid rgba(245, 158, 11, 0.5)',
+            boxShadow: '0 0 12px rgba(245, 158, 11, 0.25)',
+          }}
+        />
+        <div className="relative z-10">{children}</div>
+      </div>
+    );
+  }
+
+  // Authentic Fluorescent Yellow Chisel-Tip Highlighter for Thermal & Modern
+  return (
+    <div className="relative w-full my-0.5">
+      {/* 1. Main Organic Chisel-tip Highlighter Stroke */}
+      <div
+        className="absolute inset-0 -inset-x-2.5 -inset-y-[3px] pointer-events-none -z-0"
+        style={{
+          background: 'linear-gradient(98deg, rgba(254, 240, 138, 0.98) 0%, rgba(253, 224, 71, 0.90) 30%, rgba(250, 204, 21, 0.84) 70%, rgba(254, 240, 138, 0.94) 100%)',
+          clipPath: 'polygon(0.3% 14%, 4% 4%, 28% 6%, 65% 2%, 97.5% 8%, 99.8% 28%, 99.2% 84%, 96.5% 96%, 42% 93%, 12% 98%, 0.6% 88%)',
+          transform: 'rotate(-0.4deg) skewX(-1.5deg)',
+          filter: 'drop-shadow(0px 1px 1px rgba(202, 138, 4, 0.2))',
+          mixBlendMode: 'multiply',
+        }}
+      />
+      {/* 2. Secondary Uneven Wet-Ink Bleed Layer */}
+      <div
+        className="absolute inset-0 -inset-x-2 -inset-y-[1px] pointer-events-none -z-0 opacity-70"
+        style={{
+          background: 'linear-gradient(95deg, rgba(250, 204, 21, 0.4) 0%, rgba(254, 240, 138, 0.6) 80%, rgba(234, 179, 8, 0.35) 100%)',
+          clipPath: 'polygon(1% 5%, 98.5% 2%, 99.5% 94%, 0.5% 97%)',
+          transform: 'rotate(0.2deg)',
+          mixBlendMode: 'multiply',
+        }}
+      />
+      <div className="relative z-10">{children}</div>
+    </div>
+  );
+};
+
 export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
   ({ bill, className = '' }, ref) => {
 
@@ -158,16 +233,30 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             </div>
 
             <div className="space-y-1 pt-1 text-[11px]">
-              {stats.visibleTracks.map((t, idx) => (
-                <div key={t.id || idx} className="flex justify-between items-start leading-snug">
-                  <div className="w-6 sm:w-7 text-stone-600 font-semibold shrink-0">1</div>
-                  <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words">
-                    {t.name}
+              {stats.visibleTracks.map((t, idx) => {
+                const isHighlighted = bill.highlightedTrackId === t.id;
+                
+                const rowContent = (
+                  <div className="flex justify-between items-start leading-snug">
+                    <div className="w-6 sm:w-7 text-stone-600 font-semibold shrink-0">1</div>
+                    <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words">
+                      {t.name}
+                    </div>
+                    <div className="w-12 sm:w-14 text-center text-stone-700 font-mono shrink-0">{t.duration}</div>
+                    <div className="w-14 sm:w-16 text-right font-bold font-mono shrink-0">{t.price || t.duration.replace(':', '.')}</div>
                   </div>
-                  <div className="w-12 sm:w-14 text-center text-stone-700 font-mono shrink-0">{t.duration}</div>
-                  <div className="w-14 sm:w-16 text-right font-bold font-mono shrink-0">{t.price || t.duration.replace(':', '.')}</div>
-                </div>
-              ))}
+                );
+
+                if (isHighlighted) {
+                  return (
+                    <MarkerHighlight key={t.id || idx} theme="thermal">
+                      {rowContent}
+                    </MarkerHighlight>
+                  );
+                }
+
+                return <div key={t.id || idx}>{rowContent}</div>;
+              })}
 
               {/* Large Playlist Summary Row */}
               {stats.hasOverflow && (
@@ -300,14 +389,28 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             </div>
 
             <div className="space-y-1 pt-1.5">
-              {stats.visibleTracks.map((t, idx) => (
-                <div key={t.id || idx} className="flex justify-between items-start text-[11px] leading-snug">
-                  <div className="w-6 sm:w-7 opacity-70 font-semibold shrink-0">{idx + 1}</div>
-                  <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words">{t.name}</div>
-                  <div className="w-12 sm:w-14 text-center font-semibold text-stone-700 shrink-0 font-mono">{t.duration}</div>
-                  <div className="w-14 sm:w-16 text-right font-bold shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
-                </div>
-              ))}
+              {stats.visibleTracks.map((t, idx) => {
+                const isHighlighted = bill.highlightedTrackId === t.id;
+
+                const rowContent = (
+                  <div className="flex justify-between items-start text-[11px] leading-snug">
+                    <div className="w-6 sm:w-7 opacity-70 font-semibold shrink-0">{idx + 1}</div>
+                    <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words">{t.name}</div>
+                    <div className="w-12 sm:w-14 text-center font-semibold text-stone-700 shrink-0 font-mono">{t.duration}</div>
+                    <div className="w-14 sm:w-16 text-right font-bold shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
+                  </div>
+                );
+
+                if (isHighlighted) {
+                  return (
+                    <MarkerHighlight key={t.id || idx} theme="modern">
+                      {rowContent}
+                    </MarkerHighlight>
+                  );
+                }
+
+                return <div key={t.id || idx}>{rowContent}</div>;
+              })}
 
               {stats.hasOverflow && (
                 <div className="flex justify-between items-center text-[10px] font-bold italic text-stone-600 pt-1 border-t border-dotted border-stone-400">
@@ -445,14 +548,30 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
             </div>
 
             <div className="space-y-1 pt-1.5 text-[11px] font-semibold">
-              {stats.visibleTracks.map((t, idx) => (
-                <div key={t.id || idx} className="flex justify-between items-start leading-snug">
-                  <div className="w-6 sm:w-7 text-[#b91c1c] shrink-0">{idx + 1}</div>
-                  <div className="flex-1 min-w-0 pr-2 text-[#15803d] font-bold uppercase break-words">{t.name}</div>
-                  <div className="w-12 sm:w-14 text-center text-[#b91c1c] shrink-0 font-mono">{t.duration}</div>
-                  <div className="w-14 sm:w-16 text-right text-[#15803d] font-bold shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
-                </div>
-              ))}
+              {stats.visibleTracks.map((t, idx) => {
+                const isHighlighted = bill.highlightedTrackId === t.id;
+
+                const rowContent = (
+                  <div className="flex justify-between items-start leading-snug">
+                    <div className="w-6 sm:w-7 text-[#b91c1c] shrink-0">{idx + 1}</div>
+                    <div className="flex-1 min-w-0 pr-2 text-[#15803d] font-bold uppercase break-words">
+                      {isHighlighted ? `★ ${t.name}` : t.name}
+                    </div>
+                    <div className="w-12 sm:w-14 text-center text-[#b91c1c] shrink-0 font-mono">{t.duration}</div>
+                    <div className="w-14 sm:w-16 text-right text-[#15803d] font-bold shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
+                  </div>
+                );
+
+                if (isHighlighted) {
+                  return (
+                    <MarkerHighlight key={t.id || idx} theme="tea">
+                      {rowContent}
+                    </MarkerHighlight>
+                  );
+                }
+
+                return <div key={t.id || idx}>{rowContent}</div>;
+              })}
 
               {stats.hasOverflow && (
                 <div className="flex justify-between items-center text-[10px] font-bold italic text-[#b91c1c] pt-1 border-t border-dotted border-[#b91c1c]/40">
@@ -583,14 +702,28 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           </div>
 
           <div className="space-y-1 pt-1.5">
-            {stats.visibleTracks.map((t, idx) => (
-              <div key={t.id || idx} className="flex justify-between items-start text-[11px] leading-snug">
-                <div className="w-6 sm:w-7 text-amber-400 font-semibold shrink-0">{idx + 1}</div>
-                <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words text-stone-100">{t.name}</div>
-                <div className="w-12 sm:w-14 text-center text-stone-300 font-semibold shrink-0 font-mono">{t.duration}</div>
-                <div className="w-14 sm:w-16 text-right font-bold text-amber-200 shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
-              </div>
-            ))}
+            {stats.visibleTracks.map((t, idx) => {
+              const isHighlighted = bill.highlightedTrackId === t.id;
+
+              const rowContent = (
+                <div className="flex justify-between items-start text-[11px] leading-snug">
+                  <div className="w-6 sm:w-7 text-amber-400 font-semibold shrink-0">{idx + 1}</div>
+                  <div className="flex-1 min-w-0 pr-2 font-bold uppercase break-words text-stone-100">{t.name}</div>
+                  <div className="w-12 sm:w-14 text-center text-stone-300 font-semibold shrink-0 font-mono">{t.duration}</div>
+                  <div className="w-14 sm:w-16 text-right font-bold text-amber-200 shrink-0 font-mono">{t.price || t.duration.replace(':', '.')}</div>
+                </div>
+              );
+
+              if (isHighlighted) {
+                return (
+                  <MarkerHighlight key={t.id || idx} theme="cinematic">
+                    {rowContent}
+                  </MarkerHighlight>
+                );
+              }
+
+              return <div key={t.id || idx}>{rowContent}</div>;
+            })}
 
             {stats.hasOverflow && (
               <div className="flex justify-between items-center text-[10px] font-bold italic text-amber-400/80 pt-1 border-t border-dotted border-amber-500/30">

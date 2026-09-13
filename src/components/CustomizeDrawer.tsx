@@ -10,6 +10,7 @@ import {
   Image as ImageIcon,
   Plus,
   Trash2,
+  Sparkles,
 } from 'lucide-react';
 
 interface CustomizeDrawerProps {
@@ -298,10 +299,40 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
             </div>
           )}
 
-          {/* TAB 3: TRACKLIST */}
+          {/* TAB 3: TRACKLIST & HIGHLIGHTER */}
           {activeTab === 'tracks' && (
             <div className="space-y-2.5">
-              <div className="flex justify-between items-center pb-1">
+              {/* Highlight Favorite Dish Dropdown */}
+              <div className="p-2.5 bg-stone-950 rounded-xl border border-stone-800 space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Highlight Favorite Track</span>
+                  </label>
+                  {bill.highlightedTrackId && (
+                    <button
+                      onClick={() => handleTextChange('highlightedTrackId', undefined)}
+                      className="text-[10px] text-stone-400 hover:text-stone-200 underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={bill.highlightedTrackId || ''}
+                  onChange={(e) => handleTextChange('highlightedTrackId', e.target.value || undefined)}
+                  className="w-full bg-stone-900 border border-stone-800 rounded-lg px-2.5 py-1.5 text-xs text-stone-200 focus:outline-none focus:border-amber-500 font-medium"
+                >
+                  <option value="">None (Standard Bill)</option>
+                  {bill.tracks.map((t, idx) => (
+                    <option key={t.id || idx} value={t.id}>
+                      {idx + 1}. {t.name} ({t.duration})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex justify-between items-center pt-1 pb-0.5">
                 <span className="text-xs text-stone-400">Song duration determines price</span>
                 <button
                   onClick={handleAddTrack}
@@ -312,32 +343,59 @@ export const CustomizeDrawer: React.FC<CustomizeDrawerProps> = ({ bill, onChange
               </div>
 
               <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                {bill.tracks.map((track, idx) => (
-                  <div key={track.id || idx} className="p-2.5 bg-stone-950 rounded-xl border border-stone-800 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-amber-400 w-4">{idx + 1}.</span>
-                      <input
-                        type="text"
-                        value={track.name}
-                        onChange={(e) => handleTrackChange(idx, 'name', e.target.value)}
-                        className="flex-1 bg-stone-900 border border-stone-800 rounded px-2 py-1 text-xs text-stone-100 focus:outline-none focus:border-amber-500 font-semibold"
-                      />
-                      <input
-                        type="text"
-                        value={track.duration}
-                        onChange={(e) => handleTrackChange(idx, 'duration', e.target.value)}
-                        className="w-14 bg-stone-900 border border-stone-800 rounded px-1.5 py-1 text-xs font-mono text-center text-stone-100 focus:outline-none focus:border-amber-500"
-                      />
-                      <button
-                        onClick={() => handleRemoveTrack(idx)}
-                        disabled={bill.tracks.length <= 1}
-                        className="text-stone-500 hover:text-red-400 disabled:opacity-30 p-1 cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                {bill.tracks.map((track, idx) => {
+                  const isHighlighted = bill.highlightedTrackId === track.id;
+                  return (
+                    <div
+                      key={track.id || idx}
+                      className={`p-2.5 bg-stone-950 rounded-xl border transition-all space-y-1 ${
+                        isHighlighted
+                          ? 'border-amber-500 bg-amber-950/20 ring-1 ring-amber-500/40'
+                          : 'border-stone-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold text-amber-400 w-4">{idx + 1}.</span>
+                        <input
+                          type="text"
+                          value={track.name}
+                          onChange={(e) => handleTrackChange(idx, 'name', e.target.value)}
+                          className="flex-1 bg-stone-900 border border-stone-800 rounded px-2 py-1 text-xs text-stone-100 focus:outline-none focus:border-amber-500 font-semibold"
+                        />
+                        <input
+                          type="text"
+                          value={track.duration}
+                          onChange={(e) => handleTrackChange(idx, 'duration', e.target.value)}
+                          className="w-14 bg-stone-900 border border-stone-800 rounded px-1.5 py-1 text-xs font-mono text-center text-stone-100 focus:outline-none focus:border-amber-500"
+                        />
+                        
+                        {/* Highlight Toggle Button */}
+                        <button
+                          onClick={() => {
+                            const newHighlight = isHighlighted ? undefined : track.id;
+                            handleTextChange('highlightedTrackId', newHighlight);
+                          }}
+                          title={isHighlighted ? 'Remove highlight' : 'Highlight as Favorite'}
+                          className={`p-1 rounded-lg transition-all cursor-pointer ${
+                            isHighlighted
+                              ? 'bg-amber-500 text-stone-950 font-bold shadow-sm'
+                              : 'text-stone-500 hover:text-amber-300 hover:bg-stone-900'
+                          }`}
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => handleRemoveTrack(idx)}
+                          disabled={bill.tracks.length <= 1}
+                          className="text-stone-500 hover:text-red-400 disabled:opacity-30 p-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

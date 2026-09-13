@@ -37,6 +37,7 @@ export interface BillData {
   currencySymbol: string;
   maxVisibleTracks?: number; // e.g. 15, 20, or undefined for all
   spotifyUrl?: string;
+  highlightedTrackId?: string; // id of the single favorite song to highlight
 }
 
 export interface Preset {
